@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { getRainfall } = require('./services/weather');
+const DistrictRainfall = require('./models/districtRainfall');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -55,6 +56,30 @@ app.get('/api/live-rainfall/:lat/:lng', async (req, res) => {
   try {
     const rainfall = await getRainfall(lat, lng);
     res.json({ lat, lng, rainfall });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// All districts
+app.get('/api/district-rainfall', async (req, res) => {
+  try {
+    const data = await DistrictRainfall.find().sort({ district: 1 });
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// One district by name, e.g. /api/district-rainfall/Udupi
+app.get('/api/district-rainfall/:district', async (req, res) => {
+  try {
+    const data = await DistrictRainfall.findOne({ district: req.params.district })
+      .collation({ locale: 'en', strength: 2 });
+    if (!data) {
+      return res.status(404).json({ error: 'District not found' });
+    }
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
