@@ -1,1 +1,1 @@
-# disaster-managment-app
+# disaster-management-app
