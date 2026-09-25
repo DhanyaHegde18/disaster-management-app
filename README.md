@@ -1,5 +1,4 @@
 # disaster-management-app
-# disaster-management-app
 # 🌊 Disaster Management & Early Warning System
 
 > **An Early Warning and Community Response System for Floods and Landslides in Karnataka**
