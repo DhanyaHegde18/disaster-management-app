@@ -68,7 +68,8 @@ app.post('/api/auth/request-otp', async (req, res) => {
 
 // Step 2 of login: check the code.
 // Body: { "phone": "...", "code": "123456" }
-// First time also: "name", "village", "district"
+// First time as villager, also: "name", "village", "district"
+// First time as NGO, also: "registerAs": "ngo", "name" (contact person), "ngoName", "district", "services", "location"
 app.post('/api/auth/verify-otp', async (req, res) => {
   const phone = normalizePhone(req.body.phone);
   const code = String(req.body.code || '').trim();
@@ -95,22 +96,35 @@ app.post('/api/auth/verify-otp', async (req, res) => {
 
     let user = await User.findOne({ phone });
 
-    if (user && user.role !== 'villager') {
-      return res.status(403).json({ error: 'NGO and admin accounts log in with a password' });
-    }
-
     if (!user) {
-      // First time: we need their name (the code stays valid, so the app can send it again with the name)
-      if (!req.body.name) {
+      // First time: create the account (the code stays valid if details are missing, so the app can send them again)
+      const { name, registerAs } = req.body;
+      if (!name) {
         return res.status(400).json({ error: 'New user: please give your name', needsName: true });
       }
-      user = await User.create({
-        name: req.body.name,
-        phone,
-        role: 'villager',
-        village: req.body.village,
-        district: req.body.district
-      });
+
+      if (registerAs === 'ngo') {
+        if (!req.body.ngoName) {
+          return res.status(400).json({ error: 'Please give the NGO name', needsNgoName: true });
+        }
+        const ngo = await NGO.create({
+          name: req.body.ngoName,
+          contactPerson: name,
+          phone,
+          district: req.body.district,
+          location: req.body.location,
+          services: Array.isArray(req.body.services) ? req.body.services : []
+        });
+        user = await User.create({ name, phone, role: 'ngo', ngo: ngo._id, district: req.body.district });
+      } else {
+        user = await User.create({
+          name,
+          phone,
+          role: 'villager',
+          village: req.body.village,
+          district: req.body.district
+        });
+      }
     }
 
     await otp.deleteOne();  // a code works only once
@@ -158,9 +172,28 @@ app.get('/api/shelters', async (req, res) => {
   res.json(shelters);
 });
 
-app.post('/api/sos', async (req, res) => {
+// Create SOS. Works with or without login, so a help request is never blocked.
+// Body: { "location": { "lat", "lng" }, "village", "type" }
+// Without login, "contactName" and "contactPhone" can also be sent.
+app.post('/api/sos', optionalAuth, async (req, res) => {
   try {
-    const sos = new SOS(req.body);
+    // Only these come from the request. Status and assignment are always set by the server.
+    const { location, village, type } = req.body;
+    const sos = new SOS({ location, village, type });
+
+    const user = req.user ? await User.findById(req.user.id) : null;
+    if (user) {
+      sos.reportedBy = user._id;
+      sos.contactName = user.name;
+      sos.contactPhone = user.phone;
+      if (!sos.village && user.village) {
+        sos.village = user.village;
+      }
+    } else {
+      sos.contactName = req.body.contactName || null;
+      sos.contactPhone = req.body.contactPhone || null;
+    }
+
     await sos.save();
     res.status(201).json(sos);
   } catch (err) {
@@ -174,7 +207,7 @@ app.post('/api/sos', async (req, res) => {
 //   /api/sos                    -> all requests
 //   /api/sos?status=active      -> Pending + In Progress
 //   /api/sos?status=Pending     -> only one status
-app.get('/api/sos', async (req, res) => {
+app.get('/api/sos', requireRole('ngo'), async (req, res) => {
   try {
     const filter = {};
     const { status } = req.query;
@@ -193,8 +226,20 @@ app.get('/api/sos', async (req, res) => {
   }
 });
 
+// A villager's own SOS requests, to see if help is coming
+app.get('/api/sos/mine', requireAuth, async (req, res) => {
+  try {
+    const requests = await SOS.find({ reportedBy: req.user.id })
+      .sort({ timestamp: -1 })
+      .populate('assignedTo', 'name phone district');
+    res.json(requests);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // One SOS request by id
-app.get('/api/sos/:id', async (req, res) => {
+app.get('/api/sos/:id', requireRole('ngo'), async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).json({ error: 'Invalid SOS id' });
   }
@@ -210,21 +255,19 @@ app.get('/api/sos/:id', async (req, res) => {
   }
 });
 
-// Assign / accept an SOS for an NGO. Body: { "ngoId": "..." }
-app.patch('/api/sos/:id/assign', async (req, res) => {
+// A logged-in NGO accepts an SOS for itself. No body needed: the NGO comes from the login token.
+app.patch('/api/sos/:id/assign', requireRole('ngo'), async (req, res) => {
   const { id } = req.params;
-  const { ngoId } = req.body;
-  if (!mongoose.isValidObjectId(id) || !mongoose.isValidObjectId(ngoId)) {
-    return res.status(400).json({ error: 'Invalid SOS id or NGO id' });
+  const ngoId = req.user.ngo;
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({ error: 'Invalid SOS id' });
+  }
+  if (!ngoId) {
+    return res.status(403).json({ error: 'This account is not linked to an NGO' });
   }
 
   try {
-    const ngo = await NGO.findById(ngoId);
-    if (!ngo) {
-      return res.status(404).json({ error: 'NGO not found' });
-    }
-
-    // Only a Pending SOS can be assigned, so two NGOs can't accept the same one
+    // Only a Pending SOS can be accepted, so two NGOs can't accept the same one
     const sos = await SOS.findOneAndUpdate(
       { _id: id, status: 'Pending' },
       { assignedTo: ngoId, assignedAt: new Date(), status: 'In Progress' },
@@ -248,7 +291,8 @@ app.patch('/api/sos/:id/assign', async (req, res) => {
 // Update status. Body: { "status": "Pending" | "In Progress" | "Resolved" }
 const SOS_STATUSES = ['Pending', 'In Progress', 'Resolved'];
 
-app.patch('/api/sos/:id/status', async (req, res) => {
+// The NGO handling an SOS updates it. Body: { "status": "In Progress" | "Resolved" | "Pending" }
+app.patch('/api/sos/:id/status', requireRole('ngo'), async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
   if (!mongoose.isValidObjectId(id)) {
@@ -259,23 +303,24 @@ app.patch('/api/sos/:id/status', async (req, res) => {
   }
 
   try {
-    const update = { status };
-    if (status === 'Resolved') {
-      update.resolvedAt = new Date();
-    } else {
-      update.resolvedAt = null;
-    }
-    if (status === 'Pending') {
-      // Back to Pending means un-assigned, so another NGO can accept it
-      update.assignedTo = null;
-      update.assignedAt = null;
-    }
-
-    const sos = await SOS.findByIdAndUpdate(id, update, { new: true })
-      .populate('assignedTo', 'name phone district');
+    const sos = await SOS.findById(id);
     if (!sos) {
       return res.status(404).json({ error: 'SOS not found' });
     }
+    if (!sos.assignedTo || sos.assignedTo.toString() !== req.user.ngo) {
+      return res.status(403).json({ error: 'Only the NGO handling this SOS can update it' });
+    }
+
+    sos.status = status;
+    sos.resolvedAt = status === 'Resolved' ? new Date() : null;
+    if (status === 'Pending') {
+      // Back to Pending means the NGO gives it up, so another NGO can accept it
+      sos.assignedTo = null;
+      sos.assignedAt = null;
+    }
+
+    await sos.save();
+    await sos.populate('assignedTo', 'name phone district');
     res.json(sos);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -283,17 +328,6 @@ app.patch('/api/sos/:id/status', async (req, res) => {
 });
 
 // ---------- NGOs ----------
-
-// Add an NGO
-app.post('/api/ngos', async (req, res) => {
-  try {
-    const ngo = new NGO(req.body);
-    await ngo.save();
-    res.status(201).json(ngo);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
 
 // List all NGOs
 app.get('/api/ngos', async (req, res) => {
@@ -325,7 +359,7 @@ app.get('/api/ngos/:id', async (req, res) => {
 
 // Trigger an alert
 // Body: { "village": "...", "district": "...", "riskLevel": "Severe", "phones": ["+91..."], "message": "(optional)" }
-app.post('/api/alerts/trigger', async (req, res) => {
+app.post('/api/alerts/trigger', requireRole('ngo'), async (req, res) => {
   const { village, district, riskLevel, message, phones } = req.body;
 
   if (!village && !district) {

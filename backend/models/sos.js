@@ -13,7 +13,12 @@ const sosSchema = new mongoose.Schema({
   // New: which NGO is handling it, and when
   assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'NGO', default: null },
   assignedAt: { type: Date, default: null },
-  resolvedAt: { type: Date, default: null }
+  resolvedAt: { type: Date, default: null },
+
+  // Who sent it (filled in automatically if a villager is logged in)
+  reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  contactName: { type: String, default: null },
+  contactPhone: { type: String, default: null }
 });
 
 module.exports = mongoose.model('SOS', sosSchema);
