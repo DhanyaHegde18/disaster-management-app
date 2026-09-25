@@ -1,5 +1,7 @@
 let currentLocation = null;
 
+const LAST_LOCATION_KEY = "lastKnownLocation";
+
 const locationButton = document.getElementById("locationButton");
 const locationStatus = document.getElementById("locationStatus");
 const sosButton = document.getElementById("sosButton");
@@ -46,12 +48,12 @@ function openDatabase() {
 // ===============================
 
 locationButton.addEventListener("click", () => {
+    getLocationWithFallback();
+});
 
+function getLocationWithFallback() {
     if (!navigator.geolocation) {
-
-        locationStatus.textContent =
-            "❌ Geolocation is not supported by this browser.";
-
+        useLastKnownLocation();
         return;
     }
 
@@ -59,9 +61,7 @@ locationButton.addEventListener("click", () => {
         "📍 Getting your location...";
 
     navigator.geolocation.getCurrentPosition(
-
         (position) => {
-
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
 
@@ -70,24 +70,72 @@ locationButton.addEventListener("click", () => {
                 longitude: longitude
             };
 
+            // Save the latest successful location locally
+            localStorage.setItem(
+                LAST_LOCATION_KEY,
+                JSON.stringify(currentLocation)
+            );
+
             locationStatus.textContent =
                 `📍 Location captured: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
 
-            console.log("Location:", currentLocation);
-
+            console.log(
+                "📍 Fresh GPS location:",
+                currentLocation
+            );
         },
-
         (error) => {
+            console.error(
+                "GPS location failed:",
+                error
+            );
 
-            console.error(error);
-
-            locationStatus.textContent =
-                "❌ Unable to get your location.";
-
+            useLastKnownLocation();
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 60000
         }
     );
+}
 
-});
+function useLastKnownLocation() {
+    const savedLocation =
+        localStorage.getItem(LAST_LOCATION_KEY);
+
+    if (!savedLocation) {
+        currentLocation = null;
+
+        locationStatus.textContent =
+            "❌ No location available. Please connect to the internet and capture your location once.";
+
+        return;
+    }
+
+    try {
+        currentLocation =
+            JSON.parse(savedLocation);
+
+        locationStatus.textContent =
+            `📍 Using last known location: ${currentLocation.latitude.toFixed(5)}, ${currentLocation.longitude.toFixed(5)}`;
+
+        console.log(
+            "📍 Last known location:",
+            currentLocation
+        );
+    } catch (error) {
+        console.error(
+            "Invalid saved location:",
+            error
+        );
+
+        currentLocation = null;
+
+        locationStatus.textContent =
+            "❌ Saved location could not be used.";
+    }
+}
 
 // ===============================
 // SEND SOS
@@ -109,12 +157,14 @@ sosButton.addEventListener("click", async () => {
 
     // Check location
     if (!currentLocation) {
+    useLastKnownLocation();
+}
 
-        statusMessage.textContent =
-            "⚠️ Please capture your location first.";
-
-        return;
-    }
+if (!currentLocation) {
+    statusMessage.textContent =
+        "⚠️ No location available. Please capture your location once while connected.";
+    return;
+}
 
     // Create SOS object
     const sosData = {
@@ -468,3 +518,18 @@ if ("serviceWorker" in navigator) {
 
     });
 }
+
+// Automatic retry for pending SOS records
+setInterval(async () => {
+    if (!navigator.onLine) {
+        return;
+    }
+
+    try {
+        await syncPendingSOSFromPage();
+
+        console.log("🔄 Automatic SOS sync check completed");
+    } catch (error) {
+        console.log("⏳ Backend unavailable. SOS remains pending.");
+    }
+}, 10000);
