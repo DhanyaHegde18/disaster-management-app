@@ -474,3 +474,154 @@ export function RespondersView({ ngos, loading, error, sosRequests }) {
     </section>
   );
 }
+
+// ---------------------------------------------------------------
+// EVACUATION STATUS (from villagers' family reports)
+// ---------------------------------------------------------------
+
+const EVAC_GROUPS = [
+  { field: "inShelter", label: "In shelter", className: "evac-shelter" },
+  { field: "withRelatives", label: "With relatives", className: "evac-relatives" },
+  { field: "atHome", label: "Stayed home", className: "evac-home" },
+  { field: "elsewhere", label: "Place unknown", className: "evac-elsewhere" },
+  { field: "unaccounted", label: "Not reported", className: "evac-unaccounted" },
+];
+
+export function EvacuationBar({ row }) {
+  const total = row.totalMembers || 0;
+  return (
+    <div className="evac-bar" title={`${total} people`}>
+      {total > 0 &&
+        EVAC_GROUPS.map((group) =>
+          row[group.field] > 0 ? (
+            <div
+              key={group.field}
+              className={group.className}
+              style={{ width: `${(row[group.field] / total) * 100}%` }}
+            ></div>
+          ) : null
+        )}
+    </div>
+  );
+}
+
+export function EvacuationLegend() {
+  return (
+    <div className="evac-legend">
+      {EVAC_GROUPS.map((group) => (
+        <span key={group.field}>
+          <i className={group.className}></i>
+          {group.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+export function EvacuationView({ data, loading, error }) {
+  const totals = data?.totals;
+  const villages = data?.villages || [];
+  const reports = data?.reports || [];
+
+  return (
+    <section className="cc-view">
+      <ViewHeader
+        title="Evacuation Status"
+        subtitle="Where people went after the alert, as reported by each family"
+      />
+
+      {loading && <div className="panel cc-list"><EmptyState icon="⏳" title="Loading reports..." text="Connecting to the server." /></div>}
+      {!loading && error && <div className="panel cc-list"><EmptyState icon="⚠" title="Unable to load reports" text={error} /></div>}
+      {!loading && !error && villages.length === 0 && (
+        <div className="panel cc-list">
+          <EmptyState
+            icon="👪"
+            title="No family reports yet"
+            text="When villagers fill in “Where is your family?” on their app, the numbers appear here."
+          />
+        </div>
+      )}
+
+      {!loading && !error && totals && villages.length > 0 && (
+        <>
+          <div className="evac-totals">
+            <div className="evac-total-card">
+              <small>PEOPLE REPORTED</small>
+              <strong>{totals.totalMembers}</strong>
+              <span>{totals.families} families</span>
+            </div>
+            {EVAC_GROUPS.map((group) => (
+              <div className={`evac-total-card ${group.className}-text`} key={group.field}>
+                <small>{group.label.toUpperCase()}</small>
+                <strong>{totals[group.field]}</strong>
+                <span>
+                  {totals.totalMembers ? Math.round((totals[group.field] / totals.totalMembers) * 100) : 0}%
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="panel cc-list">
+            <div className="evac-list-head">
+              <h3>By village</h3>
+              <EvacuationLegend />
+            </div>
+
+            {villages.map((row) => (
+              <div className="cc-row evac-row" key={row.village}>
+                <div className="cc-row-main">
+                  <strong>{row.village}{row.district ? `, ${row.district}` : ""}</strong>
+                  <EvacuationBar row={row} />
+                  <p>
+                    {row.totalMembers} people from {row.families} families ·{" "}
+                    {row.inShelter} in shelter · {row.withRelatives} with relatives ·{" "}
+                    {row.atHome} at home · {row.elsewhere} place unknown
+                    {row.unaccounted > 0 ? ` · ${row.unaccounted} not reported` : ""}
+                  </p>
+                </div>
+                <div className="cc-row-meta">
+                  <span>{timeAgo(row.lastUpdated)}</span>
+                  {row.atHome + row.elsewhere + row.unaccounted > 0 && (
+                    <small className="evac-followup">
+                      ⚠ {row.atHome + row.elsewhere + row.unaccounted} need follow-up
+                    </small>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="panel cc-list">
+            <div className="evac-list-head">
+              <h3>Family reports</h3>
+            </div>
+            {reports.map((report) => {
+              const unaccounted =
+                report.totalMembers -
+                (report.inShelter + report.withRelatives + report.atHome + report.elsewhere);
+              return (
+                <div className="cc-row" key={report._id}>
+                  <div className="cc-row-main">
+                    <strong>
+                      {report.reporterName || "Villager"} · {report.village || "Unknown village"}
+                    </strong>
+                    <p>
+                      {report.totalMembers} members · {report.inShelter} in shelter
+                      {report.shelterName ? ` (${report.shelterName})` : ""} · {report.withRelatives} with relatives ·{" "}
+                      {report.atHome} at home · {report.elsewhere} place unknown
+                      {unaccounted > 0 ? ` · ${unaccounted} not reported` : ""}
+                    </p>
+                  </div>
+                  <div className="cc-row-meta">
+                    <span>{timeAgo(report.updatedAt)}</span>
+                    {report.reporterPhone && <a href={`tel:${report.reporterPhone}`}>📞 Call</a>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </section>
+  );
+}

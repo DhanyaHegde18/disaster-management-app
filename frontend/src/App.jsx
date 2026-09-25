@@ -2,7 +2,16 @@ import { useEffect, useState } from "react";
 import Login from "./Login";
 import ProfileMenu from "./components/ProfileMenu";
 import { apiFetch, clearSession, initials, loadSession, saveSession } from "./api";
-import { AlertsView, MapView, RespondersView, SheltersView, SOSView } from "./components/ControlViews";
+import {
+  AlertsView,
+  EvacuationBar,
+  EvacuationLegend,
+  EvacuationView,
+  MapView,
+  RespondersView,
+  SheltersView,
+  SOSView,
+} from "./components/ControlViews";
 import VillagerDashboard from "./VillagerDashboard";
 import NgoDashboard from "./NgoDashboard";
 import GramPanchayatMap from "./components/map/GramPanchayatMap";
@@ -30,6 +39,11 @@ function App() {
   // Which Control Centre page is open: dashboard | alerts | sos | map | shelters | responders
   const [activeView, setActiveView] = useState("dashboard");
   const [sosFilter, setSosFilter] = useState("active");
+
+  // Family evacuation reports: { totals, villages, reports }
+  const [evacuation, setEvacuation] = useState(null);
+  const [evacLoading, setEvacLoading] = useState(true);
+  const [evacError, setEvacError] = useState("");
   const [riskZones, setRiskZones] = useState([]);
   const [shelters, setShelters] = useState([]);
 
@@ -89,7 +103,7 @@ function App() {
       console.error("SOS fetch error:", error);
       setSosError(
         error.status === 401 || error.status === 403
-          ? "Please log out and log in again as Control Centre."
+          ? "Please log out and log in again as Gram Panchayat."
           : "Unable to load live SOS data."
       );
     } finally {
@@ -152,6 +166,19 @@ function App() {
     }
   };
 
+  const fetchEvacuation = async () => {
+    try {
+      setEvacError("");
+      const data = await apiFetch("/api/evacuation");
+      setEvacuation(data);
+    } catch (error) {
+      console.error("Evacuation fetch error:", error);
+      setEvacError("Unable to load family reports.");
+    } finally {
+      setEvacLoading(false);
+    }
+  };
+
   const fetchAlerts = async () => {
     try {
       setAlertsError("");
@@ -178,6 +205,7 @@ function App() {
       fetchShelters();
       fetchAlerts();
       fetchNgos();
+      fetchEvacuation();
 
       const interval = setInterval(() => {
         fetchSOSRequests();
@@ -185,6 +213,7 @@ function App() {
         fetchShelters();
         fetchAlerts();
         fetchNgos();
+        fetchEvacuation();
       }, 5000);
 
       return () => clearInterval(interval);
@@ -202,6 +231,7 @@ function App() {
     map: "RISK MAP",
     shelters: "SHELTERS",
     responders: "RESPONDERS",
+    evacuation: "EVACUATION",
   };
 
   const openView = (view, sosTab) => {
@@ -484,7 +514,7 @@ function App() {
           <span className="location-dot"></span>
 
           <div>
-            <small>CONTROL CENTRE</small>
+            <small>GRAM PANCHAYAT</small>
             <p>Coastal Karnataka</p>
           </div>
 
@@ -535,6 +565,14 @@ function App() {
           </button>
 
           <button
+            className={`nav-item ${activeView === "evacuation" ? "active" : ""}`}
+            onClick={() => openView("evacuation")}
+          >
+            <span>👪</span>
+            Evacuation
+          </button>
+
+          <button
             className={`nav-item ${activeView === "responders" ? "active" : ""}`}
             onClick={() => openView("responders")}
           >
@@ -582,7 +620,7 @@ function App() {
           <div>
 
             <p className="breadcrumb">
-              CONTROL CENTRE / {VIEW_TITLES[activeView]}
+              GRAM PANCHAYAT / {VIEW_TITLES[activeView]}
             </p>
 
             <h1>
@@ -616,8 +654,8 @@ function App() {
               className="profile"
               avatarClassName="avatar"
               initials={initials(session.user?.name || "Control Officer")}
-              name={session.user?.name || "Control Officer"}
-              subtitle="Control Centre"
+              name={session.user?.name || "Panchayat Officer"}
+              subtitle="Gram Panchayat"
               phone={session.user?.phone}
               onLogout={handleLogout}
             />
@@ -781,6 +819,40 @@ function App() {
 
           </div>
 
+        </section>
+
+        {/* ===================================================
+            EVACUATION SUMMARY
+        =================================================== */}
+
+        <section className="panel evac-summary">
+          <div className="panel-header">
+            <div>
+              <h3>Evacuation Status</h3>
+              <p>
+                {evacuation?.totals?.families
+                  ? `${evacuation.totals.totalMembers} people reported by ${evacuation.totals.families} families`
+                  : "Waiting for families to report where they went"}
+              </p>
+            </div>
+            <button className="text-btn" onClick={() => openView("evacuation")}>
+              View details →
+            </button>
+          </div>
+
+          {evacuation?.totals?.families > 0 && (
+            <>
+              <EvacuationBar row={evacuation.totals} />
+              <div className="evac-summary-numbers">
+                <span><b>{evacuation.totals.inShelter}</b> in shelter</span>
+                <span><b>{evacuation.totals.withRelatives}</b> with relatives</span>
+                <span><b>{evacuation.totals.atHome}</b> stayed home</span>
+                <span><b>{evacuation.totals.elsewhere}</b> place unknown</span>
+                <span><b>{evacuation.totals.unaccounted}</b> not reported</span>
+              </div>
+              <EvacuationLegend />
+            </>
+          )}
         </section>
 
 
@@ -1430,6 +1502,10 @@ function App() {
         )}
 
         {activeView === "map" && <MapView />}
+
+        {activeView === "evacuation" && (
+          <EvacuationView data={evacuation} loading={evacLoading} error={evacError} />
+        )}
 
         {activeView === "shelters" && (
           <SheltersView

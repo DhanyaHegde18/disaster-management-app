@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import UserMap from "./components/map/UserMap";
 import ProfileMenu from "./components/ProfileMenu";
 import SOSModal from "./components/SOSModal";
+import FamilyStatusCard from "./components/FamilyStatusCard";
 import { apiFetch, getToken, initials } from "./api";
 import { getPendingCount, startAutoSync } from "./utils/offlineSOS";
 
@@ -256,7 +257,7 @@ function VillagerDashboard({ user, onLogout }) {
             </p>
 
             <small>
-              Issued by Coastal Karnataka Control Centre · 12 min ago
+              Issued by your Gram Panchayat · 12 min ago
             </small>
           </div>
 
@@ -349,7 +350,7 @@ function VillagerDashboard({ user, onLogout }) {
 
             {nearbyShelters.length === 0 && (
               <p className="shelter-empty">
-                No shelters listed yet. Your Control Centre will add them here.
+                No shelters listed yet. Your Gram Panchayat will add them here.
               </p>
             )}
 
@@ -397,6 +398,10 @@ function VillagerDashboard({ user, onLogout }) {
           </div>
 
         </section>
+
+
+        {/* FAMILY EVACUATION STATUS */}
+        <FamilyStatusCard shelters={shelters} />
 
 
         {/* EVACUATION */}

@@ -348,7 +348,7 @@ function NgoDashboard({ user, onLogout }) {
                     : "The villager did not share contact details."}
                   {isMine
                     ? " Mark it resolved once the person is safe."
-                    : " Accept to let the villager and Control Centre know help is coming."}
+                    : " Accept to let the villager and Gram Panchayat know help is coming."}
                 </p>
               </div>
 

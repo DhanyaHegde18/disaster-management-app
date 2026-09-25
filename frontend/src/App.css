@@ -69,7 +69,7 @@ button {
 }
 
 .brand span {
-  font-size: 10px;
+  font-size: 13px;
   color: #9aabb1;
   letter-spacing: 0.5px;
 }
@@ -96,13 +96,13 @@ button {
 .location small {
   display: block;
   color: #7f969d;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.7px;
 }
 
 .location p {
   margin: 3px 0 0;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -123,7 +123,7 @@ nav {
   align-items: center;
   gap: 12px;
   text-align: left;
-  font-size: 13px;
+  font-size: 15px;
   transition: 0.2s;
 }
 
@@ -140,7 +140,7 @@ nav {
 .nav-item span {
   width: 20px;
   text-align: center;
-  font-size: 16px;
+  font-size: 17px;
 }
 
 .nav-badge {
@@ -153,7 +153,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .nav-badge.red {
@@ -181,14 +181,14 @@ nav {
 
 .system-status strong {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .system-status small {
   display: block;
   margin-top: 3px;
   color: #71878e;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .settings {
@@ -198,7 +198,7 @@ nav {
   color: #8da1a7;
   text-align: left;
   padding: 10px 8px;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 /* =========================
@@ -220,7 +220,7 @@ nav {
 
 .breadcrumb {
   margin: 0 0 8px;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   color: #8a979d;
   letter-spacing: 1px;
@@ -235,7 +235,7 @@ nav {
 .subtitle {
   margin: 6px 0 0;
   color: #7d898f;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .header-actions {
@@ -248,7 +248,7 @@ nav {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
   color: #3b9c6e;
 }
@@ -267,7 +267,7 @@ nav {
   border: 1px solid #e1e6e8;
   border-radius: 9px;
   position: relative;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .notification span {
@@ -279,7 +279,7 @@ nav {
   background: #e4572e;
   color: white;
   border-radius: 50%;
-  font-size: 9px;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -304,19 +304,19 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
 }
 
 .profile strong {
   display: block;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .profile small {
   display: block;
   color: #8b979d;
-  font-size: 9px;
+  font-size: 12px;
   margin-top: 2px;
 }
 
@@ -361,18 +361,18 @@ nav {
 .critical-text strong {
   display: block;
   color: #c94722;
-  font-size: 10px;
+  font-size: 13px;
   letter-spacing: 0.7px;
 }
 
 .critical-text p {
   margin: 4px 0 0;
-  font-size: 11px;
+  font-size: 13px;
   color: #725f56;
 }
 
 .critical-location {
-  font-size: 10px;
+  font-size: 13px;
   color: #75645d;
   white-space: nowrap;
 }
@@ -387,7 +387,7 @@ nav {
   color: #c94d28;
   border-radius: 7px;
   padding: 9px 12px;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -417,7 +417,7 @@ nav {
 
 .stat-top > span {
   color: #8a969b;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.7px;
 }
@@ -429,7 +429,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .orange {
@@ -460,7 +460,7 @@ nav {
 .stat-card p {
   margin: 0;
   color: #929da2;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .up {
@@ -501,12 +501,12 @@ nav {
 
 .panel-header h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .panel-header p {
   margin: 4px 0 0;
-  font-size: 10px;
+  font-size: 13px;
   color: #919ca1;
 }
 
@@ -516,7 +516,7 @@ nav {
   border-radius: 7px;
   padding: 7px 10px;
   color: #58666c;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -525,7 +525,7 @@ nav {
   color: #d95b35;
   border-radius: 20px;
   padding: 6px 9px;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -598,7 +598,7 @@ nav {
   background: rgba(255, 255, 255, 0.92);
   padding: 5px 7px;
   border-radius: 5px;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   box-shadow: 0 2px 8px rgba(30, 50, 40, 0.1);
 }
@@ -661,7 +661,7 @@ nav {
   border-radius: 20px;
   padding: 8px 12px;
   color: #718078;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.7px;
 }
@@ -679,7 +679,7 @@ nav {
   background: rgba(255,255,255,0.92);
   border-radius: 7px;
   padding: 7px 9px;
-  font-size: 8px;
+  font-size: 11px;
   color: #697671;
 }
 
@@ -719,7 +719,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -729,25 +729,25 @@ nav {
 
 .sos-info strong {
   display: block;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .sos-info span {
   display: block;
   margin-top: 3px;
-  font-size: 9px;
+  font-size: 12px;
   color: #7c898e;
 }
 
 .sos-info small {
   display: block;
   margin-top: 2px;
-  font-size: 8px;
+  font-size: 11px;
   color: #a4adaf;
 }
 
 .priority {
-  font-size: 7px;
+  font-size: 10px;
   font-weight: 800;
   padding: 5px 6px;
   border-radius: 4px;
@@ -775,7 +775,7 @@ nav {
   background: transparent;
   padding: 13px 0 2px;
   color: #d65832;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -793,7 +793,7 @@ nav {
   border: 0;
   background: none;
   color: #d45b36;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -816,7 +816,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .warning {
@@ -836,18 +836,18 @@ nav {
 
 .alert-row strong {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .alert-row p {
   margin: 3px 0 0;
   color: #909b9f;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .alert-status {
   margin-left: auto;
-  font-size: 7px;
+  font-size: 10px;
   font-weight: 800;
   padding: 5px 6px;
   border-radius: 4px;
@@ -883,11 +883,11 @@ nav {
 }
 
 .shelter-title strong {
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .shelter-title span {
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
   color: #68767b;
 }
@@ -920,7 +920,7 @@ nav {
   display: block;
   margin-top: 5px;
   color: #9ba5a8;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 /* =========================
@@ -947,7 +947,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .responder div:nth-child(2) {
@@ -956,18 +956,18 @@ nav {
 
 .responder strong {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .responder span {
   display: block;
   margin-top: 3px;
   color: #8d999d;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .responder b {
-  font-size: 7px;
+  font-size: 10px;
   padding: 5px 6px;
   border-radius: 4px;
 }
@@ -1003,13 +1003,13 @@ nav {
 }
 
 .action-bar strong {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .action-bar p {
   margin: 5px 0 0;
   color: #9cafb4;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .alert-button {
@@ -1018,7 +1018,7 @@ nav {
   color: white;
   padding: 11px 16px;
   border-radius: 7px;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
 }
 
@@ -1072,7 +1072,7 @@ nav {
   }
 
   .nav-item span {
-    font-size: 17px;
+    font-size: 18px;
   }
 
   .main {
@@ -1171,7 +1171,7 @@ nav {
   display: block;
   margin-top: 3px;
   color: #91a7ad;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .hero-content {
@@ -1187,7 +1187,7 @@ nav {
   background: rgba(228, 87, 46, 0.12);
   border: 1px solid rgba(228, 87, 46, 0.3);
   color: #f18462;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.7px;
   margin-bottom: 20px;
@@ -1208,7 +1208,7 @@ nav {
   max-width: 510px;
   color: #9cafb4;
   line-height: 1.7;
-  font-size: 13px;
+  font-size: 15px;
   margin: 23px 0 30px;
 }
 
@@ -1230,7 +1230,7 @@ nav {
 }
 
 .hero-features > div > span {
-  font-size: 17px;
+  font-size: 18px;
 }
 
 .hero-features p {
@@ -1239,13 +1239,13 @@ nav {
 
 .hero-features strong {
   display: block;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .hero-features small {
   display: block;
   color: #748b92;
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1.4;
   margin-top: 4px;
 }
@@ -1256,7 +1256,7 @@ nav {
   display: flex;
   gap: 8px;
   color: #61777e;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .login-footer span:first-child {
@@ -1290,7 +1290,7 @@ nav {
 
 .login-heading > span {
   color: #d65a34;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 1.2px;
 }
@@ -1304,7 +1304,7 @@ nav {
 .login-heading p {
   margin: 0;
   color: #89969b;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .role-section {
@@ -1315,7 +1315,7 @@ nav {
 .input-section > label {
   display: block;
   color: #7e8c91;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.8px;
   margin-bottom: 9px;
@@ -1359,7 +1359,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 19px;
 }
 
 .role-card.selected .role-icon {
@@ -1372,7 +1372,7 @@ nav {
 
 .role-info strong {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
   color: #1d2b31;
 }
 
@@ -1380,7 +1380,7 @@ nav {
   display: block;
   margin-top: 3px;
   color: #8b989d;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .role-radio {
@@ -1422,7 +1422,7 @@ nav {
   padding: 0 11px;
   border-right: 1px solid #e5eaec;
   color: #65747a;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -1432,7 +1432,7 @@ nav {
   outline: 0;
   padding: 0 12px;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 13px;
   color: #233238;
 }
 
@@ -1448,7 +1448,7 @@ nav {
   border-radius: 8px;
   background: #e4572e;
   color: white;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
   transition: 0.2s;
   display: flex;
@@ -1463,7 +1463,7 @@ nav {
 }
 
 .login-button span {
-  font-size: 16px;
+  font-size: 17px;
 }
 
 .security-note {
@@ -1477,13 +1477,13 @@ nav {
 }
 
 .security-note span {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .security-note p {
   margin: 0;
   color: #879398;
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1.5;
 }
 
@@ -1492,7 +1492,7 @@ nav {
   justify-content: center;
   gap: 6px;
   margin-top: 18px;
-  font-size: 8px;
+  font-size: 11px;
   color: #a0aaad;
 }
 
@@ -1535,7 +1535,7 @@ nav {
   }
 
   .mobile-brand strong {
-    font-size: 16px;
+    font-size: 17px;
     letter-spacing: 0.7px;
   }
 }
@@ -1581,19 +1581,19 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 19px;
 }
 
 .villager-brand h2 {
   margin: 0;
-  font-size: 17px;
+  font-size: 18px;
   letter-spacing: 1px;
 }
 
 .villager-brand span {
   display: block;
   color: #8fa4aa;
-  font-size: 8px;
+  font-size: 11px;
   margin-top: 2px;
 }
 
@@ -1606,20 +1606,20 @@ nav {
 
 .villager-location > span {
   color: #42c58b;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .villager-location small {
   display: block;
   color: #71878e;
-  font-size: 7px;
+  font-size: 10px;
   letter-spacing: 0.7px;
 }
 
 .villager-location strong {
   display: block;
   margin-top: 3px;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .villager-profile {
@@ -1639,20 +1639,20 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
 }
 
 .villager-profile strong {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .villager-profile small {
   display: block;
   margin-top: 2px;
   color: #7d9298;
-  font-size: 7px;
+  font-size: 10px;
 }
 
 .villager-profile > span {
@@ -1683,7 +1683,7 @@ nav {
 .card-label {
   margin: 0 0 7px;
   color: #d45a34;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 1px;
 }
@@ -1703,7 +1703,7 @@ nav {
   max-width: 520px;
   margin: 13px 0 0;
   color: #7d8b90;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -1716,7 +1716,7 @@ nav {
   border-radius: 20px;
   background: #f0faf4;
   color: #40946b;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -1770,7 +1770,7 @@ nav {
 .risk-card p {
   margin: 0;
   color: #876e64;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .risk-time {
@@ -1780,7 +1780,7 @@ nav {
 .risk-time small {
   display: block;
   color: #a18c83;
-  font-size: 7px;
+  font-size: 10px;
   letter-spacing: 0.7px;
 }
 
@@ -1788,7 +1788,7 @@ nav {
   display: block;
   color: #725f57;
   margin-top: 4px;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 
@@ -1814,7 +1814,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .villager-alert-content {
@@ -1829,7 +1829,7 @@ nav {
 
 .alert-heading strong {
   color: #39474c;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .alert-heading span {
@@ -1837,19 +1837,19 @@ nav {
   background: #fff0e9;
   padding: 4px 6px;
   border-radius: 4px;
-  font-size: 7px;
+  font-size: 10px;
   font-weight: 800;
 }
 
 .villager-alert-content p {
   margin: 6px 0 4px;
   color: #707f84;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .villager-alert-content small {
   color: #a0aaad;
-  font-size: 7px;
+  font-size: 10px;
 }
 
 
@@ -1878,13 +1878,13 @@ nav {
 
 .villager-panel-heading h3 {
   margin: 0;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .villager-panel-heading p {
   margin: 4px 0 0;
   color: #929da1;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .offline-badge {
@@ -1892,7 +1892,7 @@ nav {
   border-radius: 5px;
   background: #edf8f2;
   color: #3f986c;
-  font-size: 7px;
+  font-size: 10px;
   font-weight: 700;
 }
 
@@ -1939,13 +1939,13 @@ nav {
 }
 
 .big-sos strong {
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: 0.5px;
 }
 
 .big-sos small {
   margin-top: 5px;
-  font-size: 7px;
+  font-size: 10px;
   opacity: 0.8;
 }
 
@@ -1969,7 +1969,7 @@ nav {
 }
 
 .sos-info-row > div > span {
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .sos-info-row p {
@@ -1978,14 +1978,14 @@ nav {
 
 .sos-info-row strong {
   display: block;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .sos-info-row small {
   display: block;
   margin-top: 3px;
   color: #99a3a7;
-  font-size: 7px;
+  font-size: 10px;
   line-height: 1.4;
 }
 
@@ -2009,17 +2009,17 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .sos-confirmation strong {
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .sos-confirmation p {
   margin: 2px 0 0;
   color: #7e9188;
-  font-size: 7px;
+  font-size: 10px;
 }
 
 
@@ -2029,7 +2029,7 @@ nav {
   border: 0;
   background: transparent;
   color: #d35a35;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -2049,7 +2049,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .shelter-info {
@@ -2058,13 +2058,13 @@ nav {
 
 .shelter-info > strong {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .shelter-info > span {
   display: block;
   color: #909da1;
-  font-size: 7px;
+  font-size: 10px;
   margin-top: 3px;
 }
 
@@ -2098,7 +2098,7 @@ nav {
 
 .capacity-row small {
   color: #919ca0;
-  font-size: 7px;
+  font-size: 10px;
 }
 
 .available {
@@ -2106,7 +2106,7 @@ nav {
   background: #eaf7ef;
   padding: 5px 6px;
   border-radius: 4px;
-  font-size: 7px;
+  font-size: 10px;
   font-weight: 700;
 }
 
@@ -2118,7 +2118,7 @@ nav {
   background: white;
   border-radius: 7px;
   color: #d35834;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -2134,7 +2134,7 @@ nav {
   border-radius: 5px;
   background: #eaf7ef;
   color: #43966b;
-  font-size: 7px;
+  font-size: 10px;
   font-weight: 800;
 }
 
@@ -2189,12 +2189,12 @@ nav {
   padding: 5px 7px;
   border-radius: 5px;
   box-shadow: 0 2px 7px rgba(30, 50, 40, 0.1);
-  font-size: 7px;
+  font-size: 10px;
   font-weight: 700;
 }
 
 .route-point span {
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .start-point {
@@ -2236,7 +2236,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .route-details p {
@@ -2246,13 +2246,13 @@ nav {
 .route-details small {
   display: block;
   color: #9ba5a8;
-  font-size: 7px;
+  font-size: 10px;
 }
 
 .route-details strong {
   display: block;
   margin-top: 3px;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .navigate-button {
@@ -2263,7 +2263,7 @@ nav {
   border-radius: 7px;
   background: #10242b;
   color: white;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -2286,13 +2286,13 @@ nav {
 
 .status-section h3 {
   margin: 0;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .status-section p:last-child {
   margin: 5px 0 0;
   color: #91a6ac;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .status-indicator {
@@ -2300,7 +2300,7 @@ nav {
   align-items: center;
   gap: 6px;
   color: #8ea0a5;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .status-indicator span {
@@ -2326,7 +2326,7 @@ nav {
   display: flex;
   justify-content: space-between;
   color: #9aa5a8;
-  font-size: 7px;
+  font-size: 10px;
 }
 
 .villager-footer span:first-child {
@@ -2442,13 +2442,13 @@ nav {
 
 .ngo-brand h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 19px;
   letter-spacing: 0.5px;
 }
 
 .ngo-brand span {
   display: block;
-  font-size: 10px;
+  font-size: 13px;
   color: #8ea4a9;
   margin-top: 3px;
 }
@@ -2471,13 +2471,13 @@ nav {
 .ngo-profile small {
   display: block;
   color: #8ea4a9;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.8px;
 }
 
 .ngo-location strong {
   display: block;
-  font-size: 13px;
+  font-size: 15px;
   margin-top: 5px;
 }
 
@@ -2498,13 +2498,13 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
 .ngo-profile strong {
   display: block;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .ngo-profile span {
@@ -2529,7 +2529,7 @@ nav {
 
 .section-label {
   color: #f15a32;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 1.5px;
   margin-bottom: 10px;
@@ -2543,7 +2543,7 @@ nav {
 
 .ngo-welcome p:not(.section-label) {
   color: #748a90;
-  font-size: 13px;
+  font-size: 15px;
   max-width: 600px;
   line-height: 1.6;
   margin-top: 10px;
@@ -2555,7 +2555,7 @@ nav {
   color: #299667;
   border-radius: 25px;
   padding: 12px 18px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -2595,13 +2595,13 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 17px;
+  font-size: 18px;
 }
 
 .ngo-stat-card small {
   display: block;
   color: #82969b;
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.7px;
   font-weight: 700;
 }
@@ -2637,7 +2637,7 @@ nav {
 
 .section-heading p {
   color: #82969b;
-  font-size: 11px;
+  font-size: 13px;
   margin-top: 6px;
 }
 
@@ -2646,7 +2646,7 @@ nav {
   color: #f15a32;
   padding: 8px 11px;
   border-radius: 7px;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -2685,14 +2685,14 @@ nav {
 
 .severity small {
   color: #f15a32;
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 1px;
   font-weight: 800;
 }
 
 .severity h3 {
   margin: 4px 0 0;
-  font-size: 16px;
+  font-size: 17px;
 }
 
 .request-status {
@@ -2700,7 +2700,7 @@ nav {
   color: #d98218;
   border-radius: 6px;
   padding: 7px 12px;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -2725,19 +2725,19 @@ nav {
 }
 
 .request-detail > span {
-  font-size: 16px;
+  font-size: 17px;
 }
 
 .request-detail small {
   display: block;
   color: #91a1a5;
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.6px;
 }
 
 .request-detail strong {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
   margin-top: 5px;
 }
 
@@ -2748,12 +2748,12 @@ nav {
 }
 
 .request-message strong {
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .request-message p {
   color: #71868b;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.6;
   margin: 7px 0 0;
 }
@@ -2769,7 +2769,7 @@ nav {
   border: none;
   border-radius: 8px;
   padding: 12px 18px;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -2826,13 +2826,13 @@ nav {
 
 .mini-request strong {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .mini-request small {
   display: block;
   color: #8c9da1;
-  font-size: 9px;
+  font-size: 12px;
   margin-top: 4px;
 }
 
@@ -2841,7 +2841,7 @@ nav {
   background: #fff5e8;
   padding: 5px 8px;
   border-radius: 5px;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 800;
 }
 
@@ -2887,7 +2887,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
   box-shadow: 0 5px 15px rgba(0,0,0,0.12);
 }
@@ -2917,7 +2917,7 @@ nav {
   background: white;
   padding: 7px 10px;
   border-radius: 6px;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   box-shadow: 0 3px 10px rgba(0,0,0,0.08);
 }
@@ -2939,7 +2939,7 @@ nav {
   justify-content: space-between;
   padding: 15px 5px;
   color: #8b9b9f;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .ngo-footer strong {
@@ -3100,7 +3100,7 @@ nav {
 .login-brand span {
   display: block !important;
   margin-top: 4px !important;
-  font-size: 10px !important;
+  font-size: 13px !important;
   color: #91a7ac !important;
 }
 
@@ -3114,7 +3114,7 @@ nav {
 
 .hero-badge {
   color: #f15a32;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 1.5px;
   margin-bottom: 22px;
@@ -3136,7 +3136,7 @@ nav {
 .hero-content > p {
   max-width: 520px;
   color: #9aafb4 !important;
-  font-size: 14px !important;
+  font-size: 16px !important;
   line-height: 1.7 !important;
   margin: 28px 0 40px !important;
 }
@@ -3164,7 +3164,7 @@ nav {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 17px !important;
+  font-size: 18px !important;
 }
 
 .hero-features p {
@@ -3174,14 +3174,14 @@ nav {
 .hero-features strong {
   display: block !important;
   color: white !important;
-  font-size: 13px !important;
+  font-size: 15px !important;
   margin-bottom: 3px !important;
 }
 
 .hero-features small {
   display: block !important;
   color: #82999f !important;
-  font-size: 10px !important;
+  font-size: 13px !important;
 }
 
 .login-footer {
@@ -3190,7 +3190,7 @@ nav {
   display: flex !important;
   gap: 8px !important;
   color: #657e84 !important;
-  font-size: 10px !important;
+  font-size: 13px !important;
 }
 
 .login-footer span:first-child {
@@ -3233,7 +3233,7 @@ nav {
 .login-heading > span {
   display: block !important;
   color: #f15a32 !important;
-  font-size: 9px !important;
+  font-size: 12px !important;
   font-weight: 800 !important;
   letter-spacing: 1.5px !important;
   margin-bottom: 10px !important;
@@ -3250,7 +3250,7 @@ nav {
 .login-heading p {
   margin: 9px 0 0 !important;
   color: #7b8e93 !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
 }
 
 /* =========================================
@@ -3261,7 +3261,7 @@ nav {
 .input-section > label {
   display: block !important;
   color: #71858a !important;
-  font-size: 9px !important;
+  font-size: 12px !important;
   font-weight: 800 !important;
   letter-spacing: 1px !important;
   margin-bottom: 10px !important;
@@ -3310,7 +3310,7 @@ nav {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 18px !important;
+  font-size: 19px !important;
   margin-right: 13px !important;
 }
 
@@ -3325,7 +3325,7 @@ nav {
 
 .role-info strong {
   display: block !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   font-weight: 800 !important;
   color: #102a31 !important;
   margin: 0 !important;
@@ -3334,7 +3334,7 @@ nav {
 .role-info span {
   display: block !important;
   margin-top: 4px !important;
-  font-size: 9px !important;
+  font-size: 12px !important;
   color: #809398 !important;
   line-height: 1.4 !important;
 }
@@ -3385,7 +3385,7 @@ nav {
 .input-wrapper > span {
   padding: 0 14px !important;
   color: #566d73 !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   border-right: 1px solid #e1e7e8 !important;
 }
 
@@ -3396,7 +3396,7 @@ nav {
   outline: none !important;
   background: transparent !important;
   padding: 0 14px !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   color: #102a31 !important;
   font-family: inherit !important;
 }
@@ -3422,7 +3422,7 @@ nav {
   justify-content: center !important;
   gap: 10px !important;
   font-family: inherit !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   font-weight: 700 !important;
   cursor: pointer !important;
 }
@@ -3432,7 +3432,7 @@ nav {
 }
 
 .login-button span {
-  font-size: 17px !important;
+  font-size: 18px !important;
 }
 
 /* =========================================
@@ -3450,13 +3450,13 @@ nav {
 }
 
 .security-note > span {
-  font-size: 12px !important;
+  font-size: 14px !important;
 }
 
 .security-note p {
   margin: 0 !important;
   color: #678078 !important;
-  font-size: 9px !important;
+  font-size: 12px !important;
   line-height: 1.5 !important;
 }
 
@@ -3467,12 +3467,12 @@ nav {
   gap: 7px !important;
   margin-top: 13px !important;
   color: #9aa8ab !important;
-  font-size: 8px !important;
+  font-size: 11px !important;
 }
 
 .demo-note strong {
   color: #6d7d81 !important;
-  font-size: 8px !important;
+  font-size: 11px !important;
   letter-spacing: 0.6px !important;
 }
 
@@ -3513,7 +3513,7 @@ nav {
   }
 
   .mobile-brand strong {
-    font-size: 17px !important;
+    font-size: 18px !important;
   }
 }
 
@@ -3576,7 +3576,7 @@ nav {
 .alert-modal-header p {
   margin: 0;
   color: #6b7280;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .modal-close {
@@ -3586,7 +3586,7 @@ nav {
   height: 34px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 17px;
 }
 
 .form-group {
@@ -3596,7 +3596,7 @@ nav {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: #374151;
 }
@@ -3607,7 +3607,7 @@ nav {
   border: 1px solid #d1d5db;
   border-radius: 10px;
   background: #ffffff;
-  font-size: 14px;
+  font-size: 16px;
   color: #111827;
   outline: none;
 }
@@ -3659,7 +3659,7 @@ nav {
   border-radius: 10px;
   background: #ecfdf5;
   color: #047857;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -3669,7 +3669,7 @@ nav {
   border-radius: 10px;
   background: #fef2f2;
   color: #b91c1c;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 /* Villager evacuation panel: route details sit below the live map */
@@ -3726,14 +3726,14 @@ nav {
 .profile-menu .profile-dropdown-info strong {
   display: block;
   color: #17212b;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .profile-menu .profile-dropdown-info small {
   display: block;
   margin-top: 3px;
   color: #7e8c91;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .profile-logout {
@@ -3744,7 +3744,7 @@ nav {
   border-radius: 7px;
   background: #fff1ec;
   color: #c2410c;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   text-align: left;
 }
@@ -3763,7 +3763,7 @@ nav {
   border-radius: 7px;
   background: #fff1f0;
   color: #c0392b;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.4;
 }
 
@@ -3785,7 +3785,7 @@ nav {
 .otp-demo-box small {
   display: block;
   color: #b4532f;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.6px;
 }
@@ -3807,7 +3807,7 @@ nav {
 .register-title {
   margin: 0;
   color: #43545a;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -3823,7 +3823,7 @@ nav {
   padding: 0 12px;
   background: transparent;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 13px;
   color: #233238;
 }
 
@@ -3838,7 +3838,7 @@ nav {
   border: 0;
   background: none;
   color: #d45b36;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -3881,7 +3881,7 @@ nav {
 .sos-modal-label {
   margin: 0;
   color: #e4572e;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.8px;
 }
@@ -3889,7 +3889,7 @@ nav {
 .sos-modal-header h3 {
   margin: 4px 0 0;
   color: #17212b;
-  font-size: 18px;
+  font-size: 19px;
 }
 
 .sos-modal-close {
@@ -3917,12 +3917,12 @@ nav {
   border-radius: 10px;
   background: white;
   color: #17212b;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
 }
 
 .sos-type span {
-  font-size: 18px;
+  font-size: 19px;
 }
 
 .sos-type.selected {
@@ -3947,14 +3947,14 @@ nav {
 .sos-location strong {
   display: block;
   color: #17212b;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .sos-location small {
   display: block;
   margin-top: 2px;
   color: #7e8c91;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .sos-location button {
@@ -3963,7 +3963,7 @@ nav {
   border-radius: 7px;
   background: white;
   color: #43545a;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -3974,7 +3974,7 @@ nav {
 .sos-modal-message {
   margin: 12px 0 0;
   color: #c0392b;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .sos-modal-send {
@@ -3985,7 +3985,7 @@ nav {
   border-radius: 10px;
   background: #e4312b;
   color: white;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
   letter-spacing: 0.5px;
 }
@@ -4002,7 +4002,7 @@ nav {
 .sos-modal-note {
   margin: 12px 0 0;
   color: #7e8c91;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -4020,14 +4020,14 @@ nav {
   display: block;
   margin-top: 4px;
   color: #5f6d72;
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.45;
 }
 
 .panel-empty {
   margin: 14px 0;
   color: #8b979d;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .nav-item {
@@ -4061,7 +4061,7 @@ nav {
 .cc-view-header p {
   margin: 4px 0 0;
   color: #7d898f;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .cc-primary-btn {
@@ -4070,7 +4070,7 @@ nav {
   border-radius: 8px;
   background: #e4312b;
   color: white;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -4090,7 +4090,7 @@ nav {
   border-radius: 20px;
   background: white;
   color: #43545a;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -4099,7 +4099,7 @@ nav {
   padding: 1px 7px;
   border-radius: 10px;
   background: #eef2f3;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .cc-tab.active {
@@ -4136,13 +4136,13 @@ nav {
 .cc-row-main strong {
   display: block;
   color: #17212b;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .cc-row-main p {
   margin: 4px 0 0;
   color: #66757b;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.45;
 }
 
@@ -4153,7 +4153,7 @@ nav {
   gap: 4px;
   flex-shrink: 0;
   color: #8b979d;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .cc-row-meta a {
@@ -4163,7 +4163,7 @@ nav {
 }
 
 .cc-row-meta small {
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .cc-level,
@@ -4172,7 +4172,7 @@ nav {
   min-width: 92px;
   padding: 5px 8px;
   border-radius: 6px;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
   text-align: center;
   text-transform: uppercase;
@@ -4217,7 +4217,7 @@ nav {
 
 .cc-capacity small {
   color: #66757b;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .cc-empty {
@@ -4233,14 +4233,14 @@ nav {
   display: block;
   margin-top: 8px;
   color: #17212b;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .cc-empty p {
   max-width: 420px;
   margin: 6px auto 0;
   color: #7d898f;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -4258,7 +4258,7 @@ nav {
 
 .cc-form h3 {
   margin: 0 0 12px;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .cc-form-grid {
@@ -4279,7 +4279,7 @@ nav {
 
 .cc-field span {
   color: #7e8c91;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -4291,20 +4291,20 @@ nav {
   border: 1px solid #dce3e5;
   border-radius: 7px;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 14px;
   color: #17212b;
 }
 
 .cc-form-hint {
   margin: 10px 0 0;
   color: #8b979d;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .cc-form-error {
   margin: 8px 0 0;
   color: #c0392b;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .cc-form-actions {
@@ -4324,7 +4324,7 @@ nav {
   border-radius: 8px;
   background: white;
   color: #43545a;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -4349,7 +4349,7 @@ nav {
   border: 0;
   background: #f5f8f8;
   color: #17212b;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -4364,7 +4364,7 @@ nav {
   border: 0;
   border-inline: 1px solid #dce3e5;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 14px;
   text-align: center;
 }
 
@@ -4373,7 +4373,7 @@ nav {
   border: 0;
   background: none;
   color: #b91c1c;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -4381,7 +4381,7 @@ nav {
 .shelter-empty {
   margin: 16px 0;
   color: #7d8b90;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .shelter-full {
@@ -4389,7 +4389,7 @@ nav {
   border-radius: 6px;
   background: #eef2f3;
   color: #5f6d72;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -4405,7 +4405,7 @@ nav {
   margin-bottom: 14px;
   padding: 11px 14px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 14px;
   text-align: left;
 }
 
@@ -4414,7 +4414,7 @@ nav {
   border: 0;
   background: none;
   color: inherit;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .ngo-banner-error {
@@ -4469,7 +4469,7 @@ button.mini-request {
 .loc-modal-info small {
   display: block;
   color: #7e8c91;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
@@ -4478,14 +4478,14 @@ button.mini-request {
   display: block;
   margin-top: 3px;
   color: #17212b;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .loc-modal-info a {
   display: inline-block;
   margin-top: 4px;
   color: #d45b36;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   text-decoration: none;
 }
@@ -4499,4 +4499,261 @@ button.mini-request {
 
 .loc-modal-actions a {
   text-decoration: none;
+}
+
+
+/* =========================
+   VILLAGER: family evacuation status
+========================= */
+
+.family-card {
+  margin-top: 18px;
+  text-align: left;
+}
+
+.family-updated {
+  color: #7d8b90;
+  font-size: 12px;
+}
+
+.family-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid #eef1f2;
+}
+
+.family-total {
+  padding-top: 4px;
+  font-weight: 700;
+}
+
+.family-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #233238;
+  font-size: 14px;
+}
+
+.family-label > span {
+  width: 30px;
+  font-size: 18px;
+  text-align: center;
+}
+
+.family-stepper {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border: 1px solid #dce3e5;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.family-stepper button {
+  width: 38px;
+  height: 36px;
+  border: 0;
+  background: #f5f8f8;
+  color: #17212b;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.family-stepper button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.family-stepper input {
+  width: 52px;
+  height: 36px;
+  border: 0;
+  border-inline: 1px solid #dce3e5;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.family-select {
+  max-width: 260px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #dce3e5;
+  border-radius: 9px;
+  background: white;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.family-summary {
+  margin-top: 14px;
+  padding: 11px 14px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.family-summary.ok { background: #ecfdf3; color: #15803d; }
+.family-summary.missing { background: #fff7ed; color: #c2410c; }
+.family-summary.over { background: #fff1f1; color: #c62828; }
+
+.family-error,
+.family-message {
+  margin: 10px 0 0;
+  font-size: 13px;
+}
+
+.family-error { color: #c62828; }
+.family-message { color: #15803d; }
+
+.family-save {
+  width: 100%;
+  height: 46px;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #0f2a30;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.family-save:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* =========================
+   GRAM PANCHAYAT: evacuation status
+========================= */
+
+.evac-summary {
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.evac-bar {
+  display: flex;
+  height: 14px;
+  margin-top: 10px;
+  border-radius: 7px;
+  background: #edf0f1;
+  overflow: hidden;
+}
+
+.evac-shelter { background: #16a34a; }
+.evac-relatives { background: #2563eb; }
+.evac-home { background: #f59e0b; }
+.evac-elsewhere { background: #dc2626; }
+.evac-unaccounted { background: #9ca3af; }
+
+.evac-shelter-text strong { color: #15803d; }
+.evac-relatives-text strong { color: #1d4ed8; }
+.evac-home-text strong { color: #b45309; }
+.evac-elsewhere-text strong { color: #b91c1c; }
+.evac-unaccounted-text strong { color: #4b5563; }
+
+.evac-summary-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 12px;
+  color: #5f6d72;
+  font-size: 13px;
+}
+
+.evac-summary-numbers b {
+  color: #17212b;
+  font-size: 16px;
+}
+
+.evac-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 10px;
+  color: #66757b;
+  font-size: 12px;
+}
+
+.evac-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.evac-legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.evac-totals {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+.evac-total-card {
+  padding: 14px;
+  border: 1px solid #e3e9eb;
+  border-radius: 12px;
+  background: white;
+}
+
+.evac-total-card small {
+  display: block;
+  color: #7e8c91;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.evac-total-card strong {
+  display: block;
+  margin: 6px 0 2px;
+  font-size: 26px;
+}
+
+.evac-total-card span {
+  color: #7e8c91;
+  font-size: 12px;
+}
+
+.evac-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 0 4px;
+}
+
+.evac-list-head h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.evac-list-head .evac-legend {
+  margin-top: 0;
+}
+
+.evac-row .evac-bar {
+  max-width: 520px;
+}
+
+.evac-followup {
+  color: #c2410c !important;
+  font-weight: 700;
+}
+
+@media (max-width: 1100px) {
+  .evac-totals {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }

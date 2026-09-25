@@ -108,7 +108,7 @@ app.post('/api/auth/verify-otp', async (req, res) => {
         // Control Centre officer. If CONTROL_PHONES is set in .env, only those numbers may register.
         const allowed = (process.env.CONTROL_PHONES || '').split(',').map(normalizePhone).filter(Boolean);
         if (allowed.length > 0 && !allowed.includes(phone)) {
-          return res.status(403).json({ error: 'This number is not allowed to register as Control Centre' });
+          return res.status(403).json({ error: 'This number is not allowed to register as Gram Panchayat' });
         }
         user = await User.create({ name, phone, role: 'control', district: req.body.district });
       } else if (registerAs === 'ngo') {
@@ -168,6 +168,7 @@ const Shelter = require('./models/shelter');
 const SOS = require('./models/sos');
 const NGO = require('./models/ngo');
 const Alert = require('./models/alert');
+const EvacuationReport = require('./models/evacuationReport');
 const { LEVEL_COLORS, buildAlertMessage, deliverSMS } = require('./services/alerts');
 
 app.get('/api/risk-zones', async (req, res) => {
@@ -422,6 +423,111 @@ app.patch('/api/sos/:id/status', requireRole('ngo'), async (req, res) => {
     await sos.save();
     await sos.populate('assignedTo', 'name phone district');
     res.json(sos);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ---------- EVACUATION STATUS (families report where their members went) ----------
+
+const EVAC_FIELDS = ['inShelter', 'withRelatives', 'atHome', 'elsewhere'];
+
+// Save my family's status (villager). Body: { totalMembers, inShelter, withRelatives, atHome, elsewhere, shelterId? }
+app.post('/api/evacuation', requireRole('villager'), async (req, res) => {
+  const totalMembers = Number(req.body.totalMembers);
+  if (!Number.isInteger(totalMembers) || totalMembers < 1 || totalMembers > 100) {
+    return res.status(400).json({ error: 'Family members must be between 1 and 100' });
+  }
+
+  const counts = {};
+  for (const field of EVAC_FIELDS) {
+    const value = Number(req.body[field] || 0);
+    if (!Number.isInteger(value) || value < 0) {
+      return res.status(400).json({ error: 'Counts must be whole numbers, 0 or more' });
+    }
+    counts[field] = value;
+  }
+
+  const accounted = EVAC_FIELDS.reduce((sum, field) => sum + counts[field], 0);
+  if (accounted > totalMembers) {
+    return res.status(400).json({ error: `That adds up to ${accounted}, but your family has ${totalMembers} members` });
+  }
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    let shelter = null;
+    if (counts.inShelter > 0 && req.body.shelterId && mongoose.isValidObjectId(req.body.shelterId)) {
+      shelter = await Shelter.findById(req.body.shelterId);
+    }
+
+    const report = await EvacuationReport.findOneAndUpdate(
+      { user: user._id },
+      {
+        user: user._id,
+        reporterName: user.name,
+        reporterPhone: user.phone,
+        village: user.village,
+        district: user.district,
+        totalMembers,
+        ...counts,
+        shelter: shelter ? shelter._id : null,
+        shelterName: shelter ? shelter.name : null
+      },
+      { upsert: true, new: true, runValidators: true }
+    );
+
+    res.json(report);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// My family's latest report (villager)
+app.get('/api/evacuation/mine', requireAuth, async (req, res) => {
+  try {
+    const report = await EvacuationReport.findOne({ user: req.user.id });
+    res.json(report);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// All reports, plus totals per village (Gram Panchayat and NGOs)
+app.get('/api/evacuation', requireRole('control', 'ngo'), async (req, res) => {
+  try {
+    const reports = await EvacuationReport.find().sort({ updatedAt: -1 });
+
+    const byVillage = {};
+    const totals = { families: 0, totalMembers: 0, inShelter: 0, withRelatives: 0, atHome: 0, elsewhere: 0, unaccounted: 0 };
+
+    for (const report of reports) {
+      const key = report.village || 'Unknown village';
+      if (!byVillage[key]) {
+        byVillage[key] = {
+          village: key,
+          district: report.district || '',
+          families: 0, totalMembers: 0, inShelter: 0, withRelatives: 0, atHome: 0, elsewhere: 0, unaccounted: 0,
+          lastUpdated: report.updatedAt
+        };
+      }
+      const row = byVillage[key];
+      const unaccounted = report.totalMembers - EVAC_FIELDS.reduce((sum, f) => sum + (report[f] || 0), 0);
+
+      for (const target of [row, totals]) {
+        target.families += 1;
+        target.totalMembers += report.totalMembers;
+        EVAC_FIELDS.forEach((f) => { target[f] += report[f] || 0; });
+        target.unaccounted += Math.max(0, unaccounted);
+      }
+      if (report.updatedAt > row.lastUpdated) row.lastUpdated = report.updatedAt;
+    }
+
+    const villages = Object.values(byVillage).sort((a, b) => b.totalMembers - a.totalMembers);
+    res.json({ totals, villages, reports });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

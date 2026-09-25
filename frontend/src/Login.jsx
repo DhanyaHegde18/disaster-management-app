@@ -11,8 +11,8 @@ const ROLES = [
   {
     id: "control",
     icon: "🏢",
-    title: "Control Centre",
-    description: "Monitor risks, alerts, SOS requests and response",
+    title: "Gram Panchayat",
+    description: "Monitor risks, alerts, SOS, shelters and evacuation",
   },
   {
     id: "ngo",
