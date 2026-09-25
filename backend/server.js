@@ -1,5 +1,6 @@
 require('dotenv').config();
-const { getRainfall } = require('./services/weather');
+const { getRainfall, getRainfall24h } = require('./services/weather');
+const { calculateRisk } = require('./services/risk');
 const DistrictRainfall = require('./models/districtRainfall');
 const express = require('express');
 const mongoose = require('mongoose');
@@ -80,6 +81,38 @@ app.get('/api/district-rainfall/:district', async (req, res) => {
       return res.status(404).json({ error: 'District not found' });
     }
     res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });cka
+  }
+});
+
+// Risk level for a district, e.g. /api/risk/Udupi?lat=13.34&lng=74.74
+app.get('/api/risk/:district', async (req, res) => {
+  const lat = parseFloat(req.query.lat);
+  const lng = parseFloat(req.query.lng);
+  if (Number.isNaN(lat) || Number.isNaN(lng)) {
+    return res.status(400).json({ error: 'Please give lat and lng, e.g. ?lat=13.34&lng=74.74' });
+  }
+
+  try {
+    const district = await DistrictRainfall.findOne({ district: req.params.district })
+      .collation({ locale: 'en', strength: 2 });
+    if (!district) {
+      return res.status(404).json({ error: 'District not found' });
+    }
+
+    let rain = await getRainfall24h(lat, lng);
+
+    // For demos: pretend this much rain is forecast, e.g. &simulateRain=150
+    if (req.query.simulateRain !== undefined) {
+      const simulated = parseFloat(req.query.simulateRain);
+      if (!Number.isNaN(simulated)) {
+        rain = { ...rain, next24h: simulated, simulated: true };
+      }
+    }
+
+    const risk = calculateRisk(rain, district);
+    res.json({ district: district.district, lat, lng, rainfall: rain, risk });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
