@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './maps.css';
+import FixMapSize from './FixMapSize';
 import L from 'leaflet';
 import { SHELTERS } from '../../data/mockData';
 import { userIcon, shelterIcon } from './MapIcons';
@@ -20,7 +21,25 @@ function AutoBounds({ points }) {
   return null;
 }
 
-const UserMap = () => {
+// Length of a route in km (sum of straight segments between its points)
+function routeLengthKm(points) {
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  let total = 0;
+  for (let i = 1; i < points.length; i++) {
+    const [lat1, lng1] = points[i - 1];
+    const [lat2, lng2] = points[i];
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+    total += 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+  return total;
+}
+
+// onRouteInfo (optional): called with { shelter, userPos, distanceKm } whenever the route changes
+const UserMap = ({ onRouteInfo }) => {
   const [userPos, setUserPos] = useState([13.0032, 75.3340]);
   const [roadRoute, setRoadRoute] = useState([]);
   const [isLiveGPS, setIsLiveGPS] = useState(false);
@@ -48,6 +67,19 @@ const UserMap = () => {
     });
     return () => { active = false; };
   }, [userPos]);
+
+  // Tell the dashboard where the route goes and how long it is
+  useEffect(() => {
+    if (!onRouteInfo) return;
+    const points = roadRoute.length > 1
+      ? roadRoute
+      : [userPos, [DEFAULT_SHELTER.lat, DEFAULT_SHELTER.lng]];
+    onRouteInfo({
+      shelter: DEFAULT_SHELTER,
+      userPos,
+      distanceKm: routeLengthKm(points),
+    });
+  }, [roadRoute, userPos, onRouteInfo]);
 
   // Clean up audio playback when component unmounts
   useEffect(() => {
@@ -115,6 +147,7 @@ const UserMap = () => {
       </div>
 
       <MapContainer center={userPos} zoom={12} scrollWheelZoom={true} className="leaflet-map-frame">
+        <FixMapSize />
         <AutoBounds points={boundingPoints} />
 
         <TileLayer

@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import Login from "./Login";
+import ProfileMenu from "./components/ProfileMenu";
+import { clearSession, loadSession, saveSession } from "./api";
 import VillagerDashboard from "./VillagerDashboard";
 import NgoDashboard from "./NgoDashboard";
 import GramPanchayatMap from "./components/map/GramPanchayatMap";
 import "./App.css";
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [role, setRole] = useState(null);
+  // Logged-in session: { role, token, user }. Kept in localStorage so a refresh stays logged in.
+  const [session, setSession] = useState(() => loadSession());
+  const loggedIn = Boolean(session);
+  const role = session?.role || null;
 
   // =========================================================
   // LIVE BACKEND DATA
@@ -47,9 +51,14 @@ function App() {
   // LOGIN
   // =========================================================
 
-  const handleLogin = (selectedRole) => {
-    setRole(selectedRole);
-    setLoggedIn(true);
+  const handleLogin = (newSession) => {
+    saveSession(newSession);
+    setSession(newSession);
+  };
+
+  const handleLogout = () => {
+    clearSession();
+    setSession(null);
   };
 
   // =========================================================
@@ -397,7 +406,7 @@ function App() {
   // =========================================================
 
   if (role === "villager") {
-    return <VillagerDashboard />;
+    return <VillagerDashboard user={session.user} onLogout={handleLogout} />;
   }
 
   // =========================================================
@@ -405,7 +414,7 @@ function App() {
   // =========================================================
 
   if (role === "ngo") {
-    return <NgoDashboard />;
+    return <NgoDashboard user={session.user} onLogout={handleLogout} />;
   }
 
   // =========================================================
@@ -569,20 +578,14 @@ function App() {
               <span>{alerts.length}</span>
             </button>
 
-            <div className="profile">
-
-              <div className="avatar">
-                OC
-              </div>
-
-              <div>
-                <strong>Control Officer</strong>
-                <small>Administrator</small>
-              </div>
-
-              <span>⌄</span>
-
-            </div>
+            <ProfileMenu
+              className="profile"
+              avatarClassName="avatar"
+              initials="OC"
+              name="Control Officer"
+              subtitle="Administrator"
+              onLogout={handleLogout}
+            />
 
           </div>
 
@@ -779,9 +782,9 @@ function App() {
 
             </div>
 
-              <div className="embedded-map">
-              <GramPanchayatMap />
 
+            <div className="embedded-map">
+              <GramPanchayatMap />
             </div>
 
           </div>

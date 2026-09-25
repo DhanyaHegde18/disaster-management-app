@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Marker, Polyline, Popup, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './maps.css';
+import FixMapSize from './FixMapSize';
 import { ALL_VILLAGE_ZONES, SHELTERS, NEEDY_PEOPLE, NGO_TEAMS } from '../../data/mockData';
 import { ngoIcon, needyIcon, shelterIcon } from './MapIcons';
 
@@ -74,6 +75,7 @@ const GramPanchayatMap = () => {
       </div>
 
       <MapContainer center={[13.15, 75.25]} zoom={10} scrollWheelZoom={true} className="leaflet-map-frame">
+        <FixMapSize />
         <ClickToAddDistress onNewSOS={(newSOS) => setDistressList((prev) => [...prev, newSOS])} />
 
         <TileLayer

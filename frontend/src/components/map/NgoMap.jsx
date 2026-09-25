@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Marker, Polyline, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './maps.css';
+import FixMapSize from './FixMapSize';
 import { ALL_VILLAGE_ZONES, SHELTERS, NEEDY_PEOPLE } from '../../data/mockData';
 import { ngoIcon, needyIcon, shelterIcon } from './MapIcons';
 
@@ -63,6 +64,7 @@ const NgoMap = () => {
       </div>
 
       <MapContainer center={[13.05, 75.30]} zoom={11} scrollWheelZoom={true} className="leaflet-map-frame">
+        <FixMapSize />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
