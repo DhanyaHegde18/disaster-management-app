@@ -26,7 +26,7 @@ function calculateRisk(rain, district) {
   reasons.push(`${category.name} rainfall: ${worst} mm in 24 hours`);
 
   // Step 3: soaked-ground adjustment from KSNDMC data
-  if (district && district.swmDeparture >= 20) {
+  if (district && district.swmDeparture >= 20 && category.score >= 1) {
     score += 1;
     reasons.push(`Monsoon rainfall was ${district.swmDeparture}% above normal, so the ground is likely saturated`);
   }
