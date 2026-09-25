@@ -1,4 +1,5 @@
 import { useState } from "react";
+import UserMap from "./components/map/UserMap";
 
 function VillagerDashboard() {
   const [sosSent, setSosSent] = useState(false);
@@ -342,26 +343,11 @@ function VillagerDashboard() {
 
           </div>
 
-          <div className="route-preview">
+                    <div className="embedded-map">
+            <UserMap />
+          </div>
 
-            <div className="route-map">
-
-              <div className="route-road"></div>
-
-              <div className="route-point start-point">
-                <span>●</span>
-                You
-              </div>
-
-              <div className="route-point shelter-point">
-                <span>⌂</span>
-                Shelter
-              </div>
-
-              <div className="route-line"></div>
-
-            </div>
-
+          <div className="route-preview route-preview-single">
 
             <div className="route-details">
 

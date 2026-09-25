@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Login from "./Login";
 import VillagerDashboard from "./VillagerDashboard";
 import NgoDashboard from "./NgoDashboard";
+import GramPanchayatMap from "./components/map/GramPanchayatMap";
 import "./App.css";
 
 function App() {
@@ -17,11 +18,11 @@ function App() {
   const [shelters, setShelters] = useState([]);
 
   const [sosLoading, setSosLoading] = useState(true);
-  const [riskLoading, setRiskLoading] = useState(true);
+  const [, setRiskLoading] = useState(true);
   const [shelterLoading, setShelterLoading] = useState(true);
 
   const [sosError, setSosError] = useState("");
-  const [riskError, setRiskError] = useState("");
+  const [, setRiskError] = useState("");
   const [shelterError, setShelterError] = useState("");
 
   // =========================================================
@@ -778,105 +779,8 @@ function App() {
 
             </div>
 
-
-            <div className="map">
-
-              <div className="map-grid"></div>
-
-              <div className="map-road road-one"></div>
-
-              <div className="map-road road-two"></div>
-
-
-              {riskLoading && (
-
-                <div className="map-center">
-
-                  <span>●</span>
-
-                  LOADING RISK DATA...
-
-                </div>
-
-              )}
-
-
-              {!riskLoading &&
-                !riskError &&
-                riskZones.slice(0, 4).map(
-                  (zone, index) => {
-
-                    const riskClass =
-                      zone.riskLevel?.toLowerCase() ||
-                      "low";
-
-                    const labels = [
-                      "label-one",
-                      "label-two",
-                      "label-three",
-                      "label-four",
-                    ];
-
-                    return (
-
-                      <div
-                        className={`map-label ${
-                          labels[index]
-                        }`}
-                        key={zone._id || index}
-                      >
-
-                        <span
-                          className={`marker ${riskClass}`}
-                        ></span>
-
-                        {zone.village}
-
-                      </div>
-
-                    );
-                  }
-                )}
-
-
-              {!riskLoading &&
-                !riskError &&
-                riskZones.length > 0 && (
-
-                  <div className="map-center">
-
-                    <span>●</span>
-
-                    LIVE RISK MAP
-
-                  </div>
-
-                )}
-
-
-              <div className="map-legend">
-
-                <div>
-                  <span className="legend-dot critical"></span>
-                  Critical
-                </div>
-
-                <div>
-                  <span className="legend-dot high"></span>
-                  High
-                </div>
-
-                <div>
-                  <span className="legend-dot medium"></span>
-                  Medium
-                </div>
-
-                <div>
-                  <span className="legend-dot low"></span>
-                  Low
-                </div>
-
-              </div>
+              <div className="embedded-map">
+              <GramPanchayatMap />
 
             </div>
 

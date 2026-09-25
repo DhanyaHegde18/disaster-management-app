@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import './maps.css';
 import L from 'leaflet';
 import { SHELTERS } from '../../data/mockData';
 import { userIcon, shelterIcon } from './MapIcons';

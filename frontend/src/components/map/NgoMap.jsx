@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Marker, Polyline, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import './maps.css';
 import { ALL_VILLAGE_ZONES, SHELTERS, NEEDY_PEOPLE } from '../../data/mockData';
 import { ngoIcon, needyIcon, shelterIcon } from './MapIcons';
 

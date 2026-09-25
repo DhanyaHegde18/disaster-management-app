@@ -670,7 +670,7 @@ nav {
   color: #d9534f;
 }
 
-.map-legend {
+.map > .map-legend {
   position: absolute;
   left: 12px;
   bottom: 12px;
@@ -683,7 +683,7 @@ nav {
   color: #697671;
 }
 
-.map-legend div {
+.map > .map-legend div {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -3671,4 +3671,9 @@ nav {
   color: #b91c1c;
   font-size: 14px;
   font-weight: 600;
+}
+/* Villager evacuation panel: route details sit below the live map */
+.route-preview-single {
+  grid-template-columns: 1fr;
+  margin-top: 18px;
 }

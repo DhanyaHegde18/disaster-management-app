@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import NgoMap from "./components/map/NgoMap";
 
 function NgoDashboard() {
   const [requests, setRequests] = useState([]);
@@ -513,39 +514,10 @@ function NgoDashboard() {
 
           </div>
 
-
-          <div className="ngo-map-placeholder">
-
-            <div className="map-road road-one"></div>
-
-            <div className="map-road road-two"></div>
-
-
-            <div className="map-marker marker-you">
-              <span>NGO</span>
-            </div>
-
-
-            <div className="map-marker marker-alert">
-              <span>!</span>
-            </div>
-
-
-            <div className="map-marker marker-shelter">
-              <span>🏠</span>
-            </div>
-
-
-            <div className="map-label label-alert">
-              Emergency
-            </div>
-
-
-            <div className="map-label label-shelter">
-              Safe Shelter
-            </div>
-
+          <div className="embedded-map">
+            <NgoMap />
           </div>
+          
 
         </section>
 
