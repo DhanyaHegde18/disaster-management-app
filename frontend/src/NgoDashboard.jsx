@@ -146,7 +146,7 @@ function NgoDashboard({ user, onLogout }) {
 
           <div>
             <small>RESPONSE AREA</small>
-            <strong>Udupi, Karnataka</strong>
+            <strong>{user?.district ? `${user.district}, Karnataka` : "Karnataka"}</strong>
           </div>
         </div>
 
@@ -193,7 +193,7 @@ function NgoDashboard({ user, onLogout }) {
 
 
         {/* STATS */}
-        <section className="ngo-stats">
+        <section className="ngo-stats ngo-stats-3">
 
           <div className="ngo-stat-card">
             <span>🚨</span>
@@ -216,14 +216,6 @@ function NgoDashboard({ user, onLogout }) {
             <div>
               <small>RESOLVED TODAY</small>
               <strong>{loading ? "--" : String(resolvedToday).padStart(2, "0")}</strong>
-            </div>
-          </div>
-
-          <div className="ngo-stat-card">
-            <span>📍</span>
-            <div>
-              <small>RESPONSE AREA</small>
-              <strong>{user?.district || "Udupi"}</strong>
             </div>
           </div>
 

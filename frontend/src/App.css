@@ -4757,3 +4757,18 @@ button.mini-request {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* NGO: 3 stat cards after removing the duplicate "Response area" */
+.ngo-stats.ngo-stats-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Villager risk card colours follow the real alert level */
+.risk-card.risk-moderate { background: #fffbeb; border-color: #fde68a; }
+.risk-card.risk-low,
+.risk-card.risk-none { background: #f0fdf4; border-color: #bbf7d0; }
+.risk-card.risk-none h2,
+.risk-card.risk-low h2 { color: #15803d; }
+.risk-card.risk-none .risk-icon,
+.risk-card.risk-low .risk-icon { background: #dcfce7; color: #15803d; }
+.risk-card.risk-moderate h2 { color: #b45309; }

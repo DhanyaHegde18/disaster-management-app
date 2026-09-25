@@ -30,6 +30,7 @@ function VillagerDashboard({ user, onLogout }) {
   const [pendingOffline, setPendingOffline] = useState(0);
   const [routeInfo, setRouteInfo] = useState(null);    // { shelter, userPos, distanceKm } from the map
   const [shelters, setShelters] = useState([]);        // live shelters from the backend
+  const [alerts, setAlerts] = useState([]);            // alerts for my district
 
   const evacuationRef = useRef(null);
 
@@ -66,6 +67,22 @@ function VillagerDashboard({ user, onLogout }) {
     const interval = setInterval(loadShelters, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // Alerts from the Gram Panchayat for my district, refreshed every 30 seconds
+  useEffect(() => {
+    const loadAlerts = async () => {
+      try {
+        const query = user?.district ? `?district=${encodeURIComponent(user.district)}` : "";
+        const data = await apiFetch(`/api/alerts${query}`);
+        setAlerts(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.warn("Could not load alerts:", err.message);
+      }
+    };
+    loadAlerts();
+    const interval = setInterval(loadAlerts, 30000);
+    return () => clearInterval(interval);
+  }, [user?.district]);
 
   useEffect(() => {
     const stopAutoSync = startAutoSync();   // resend any SOS saved while offline
@@ -105,6 +122,19 @@ function VillagerDashboard({ user, onLogout }) {
     .sort((a, b) => a.distance - b.distance);
   const nearestOpenId = nearbyShelters.find((shelter) => !shelter.isFull)?._id;
   const routeShelter = shelters.find((shelter) => shelter._id === nearestOpenId);
+
+  // Newest alert from the last 48 hours; older ones are no longer "current"
+  const latestAlert = alerts.find(
+    (alert) => alert.createdAt && new Date() - new Date(alert.createdAt) < 48 * 60 * 60 * 1000
+  );
+
+  const alertTime = (timestamp) => {
+    const minutes = Math.floor((new Date() - new Date(timestamp)) / 60000);
+    if (minutes < 1) return "Just now";
+    if (minutes < 60) return `${minutes} min ago`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  };
 
   const scrollToMap = () => {
     evacuationRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -213,55 +243,41 @@ function VillagerDashboard({ user, onLogout }) {
         </section>
 
 
-        {/* CURRENT RISK */}
-        <section className="risk-card">
+        {/* LATEST ALERT FOR MY AREA (from the Gram Panchayat) */}
+        {latestAlert ? (
+          <section className={`risk-card risk-${String(latestAlert.riskLevel).toLowerCase()}`}>
 
-          <div className="risk-card-left">
+            <div className="risk-card-left">
+              <div className="risk-icon">⚠</div>
 
-            <div className="risk-icon">⚠</div>
-
-            <div>
-              <p className="card-label">CURRENT RISK LEVEL</p>
-
-              <h2>HIGH</h2>
-
-              <p>
-                Heavy rainfall detected in your region.
-              </p>
+              <div>
+                <p className="card-label">CURRENT RISK LEVEL</p>
+                <h2>{String(latestAlert.riskLevel).toUpperCase()}</h2>
+                <p>{latestAlert.message}</p>
+              </div>
             </div>
 
-          </div>
-
-          <div className="risk-time">
-            <small>LAST UPDATED</small>
-            <strong>2 minutes ago</strong>
-          </div>
-
-        </section>
-
-
-        {/* ALERT */}
-        <section className="villager-alert">
-
-          <div className="villager-alert-icon">⚠</div>
-
-          <div className="villager-alert-content">
-            <div className="alert-heading">
-              <strong>HEAVY RAINFALL WARNING</strong>
-              <span>ACTIVE</span>
+            <div className="risk-time">
+              <small>ISSUED</small>
+              <strong>{alertTime(latestAlert.createdAt)}</strong>
             </div>
 
-            <p>
-              Heavy rainfall is expected in your area. Avoid
-              low-lying areas and stay near a safe shelter.
-            </p>
+          </section>
+        ) : (
+          <section className="risk-card risk-none">
 
-            <small>
-              Issued by your Gram Panchayat · 12 min ago
-            </small>
-          </div>
+            <div className="risk-card-left">
+              <div className="risk-icon">✓</div>
 
-        </section>
+              <div>
+                <p className="card-label">CURRENT RISK LEVEL</p>
+                <h2>NO ACTIVE ALERT</h2>
+                <p>Your Gram Panchayat has not issued any alert for your area.</p>
+              </div>
+            </div>
+
+          </section>
+        )}
 
 
         {/* SOS + SHELTER */}
@@ -341,10 +357,6 @@ function VillagerDashboard({ user, onLogout }) {
                 <p>Available evacuation centres</p>
               </div>
 
-              <button className="small-link" onClick={scrollToMap}>
-                View map →
-              </button>
-
             </div>
 
 
@@ -413,10 +425,6 @@ function VillagerDashboard({ user, onLogout }) {
               <h3>Safe Evacuation Route</h3>
               <p>Recommended route based on current risk</p>
             </div>
-
-            <span className="route-status">
-              ✓ Route Safe
-            </span>
 
           </div>
 

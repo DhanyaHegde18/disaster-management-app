@@ -468,6 +468,14 @@ function App() {
       zone.riskLevel?.toLowerCase() === "critical"
   ).length;
 
+  // Newest High/Severe alert from the last 24 hours, shown as the red banner
+  const latestSerious = alerts.find(
+    (alert) =>
+      ["High", "Severe"].includes(alert.riskLevel) &&
+      alert.createdAt &&
+      new Date() - new Date(alert.createdAt) < 24 * 60 * 60 * 1000
+  );
+
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
@@ -595,11 +603,6 @@ function App() {
 
           </div>
 
-
-          <button className="settings">
-            ⚙ Settings
-          </button>
-
         </div>
 
       </aside>
@@ -641,15 +644,6 @@ function App() {
               LIVE
             </div>
 
-            <button
-              className="notification"
-              onClick={() => openView("alerts")}
-              title="Open live alerts"
-            >
-              🔔
-              <span>{alerts.length}</span>
-            </button>
-
             <ProfileMenu
               className="profile"
               avatarClassName="avatar"
@@ -671,42 +665,34 @@ function App() {
             ALERT BANNER
         =================================================== */}
 
-        <section className="critical-banner">
+        {latestSerious && (
+          <section className="critical-banner">
 
-          <div className="critical-icon">
-            ⚠
-          </div>
+            <div className="critical-icon">
+              ⚠
+            </div>
 
-          <div className="critical-text">
+            <div className="critical-text">
+              <strong>
+                {String(latestSerious.riskLevel).toUpperCase()} ALERT ACTIVE
+              </strong>
 
-            <strong>
-              CRITICAL ALERT
-            </strong>
+              <p>
+                {latestSerious.message}
+              </p>
+            </div>
 
-            <p>
-              Heavy rainfall detected in monitored villages.
-              Risk levels are being monitored in real time.
-            </p>
+            <div className="critical-location">
+              <span>●</span>
+              {[latestSerious.village, latestSerious.district].filter(Boolean).join(", ") || "Region-wide"}
+            </div>
 
-          </div>
+            <button className="view-alert" onClick={() => openView("alerts")}>
+              View Alert →
+            </button>
 
-          <div className="critical-location">
-
-            <span>●</span>
-
-            {criticalRiskCount > 0
-              ? `${criticalRiskCount} Critical Zone${
-                  criticalRiskCount > 1 ? "s" : ""
-                }`
-              : "Coastal Karnataka"}
-
-          </div>
-
-          <button className="view-alert" onClick={() => openView("alerts")}>
-            View Alert →
-          </button>
-
-        </section>
+          </section>
+        )}
 
 
         {/* ===================================================
