@@ -22,6 +22,8 @@ const RiskZone = require('./models/riskZone');
 const Shelter = require('./models/shelter');
 const SOS = require('./models/sos');
 const NGO = require('./models/ngo');
+const Alert = require('./models/alert');
+const { LEVEL_COLORS, buildAlertMessage, deliverSMS } = require('./services/alerts');
 
 app.get('/api/risk-zones', async (req, res) => {
   const zones = await RiskZone.find();
@@ -196,9 +198,59 @@ app.get('/api/ngos/:id', async (req, res) => {
   }
 });
 
+// ---------- ALERTS ----------
+
+// Trigger an alert
+// Body: { "village": "...", "district": "...", "riskLevel": "Severe", "phones": ["+91..."], "message": "(optional)" }
 app.post('/api/alerts/trigger', async (req, res) => {
-  const { village, riskLevel } = req.body;
-  res.json({ message: `Alert triggered for ${village}`, riskLevel });
+  const { village, district, riskLevel, message, phones } = req.body;
+
+  if (!village && !district) {
+    return res.status(400).json({ error: 'Please give a village or a district' });
+  }
+  if (!LEVEL_COLORS[riskLevel]) {
+    return res.status(400).json({ error: 'riskLevel must be one of: Low, Moderate, High, Severe' });
+  }
+
+  const recipients = Array.isArray(phones) ? phones : [];
+
+  try {
+    const text = message || buildAlertMessage({ village, district, riskLevel });
+    const sms = await deliverSMS(recipients, text);
+
+    const alert = await Alert.create({
+      village,
+      district,
+      riskLevel,
+      color: LEVEL_COLORS[riskLevel],
+      message: text,
+      recipients,
+      sms
+    });
+
+    res.status(201).json(alert);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// List alerts, newest first
+//   /api/alerts                  -> latest 50 alerts
+//   /api/alerts?district=Udupi   -> only one district
+app.get('/api/alerts', async (req, res) => {
+  try {
+    const filter = {};
+    if (req.query.district) {
+      filter.district = req.query.district;
+    }
+    const alerts = await Alert.find(filter)
+      .collation({ locale: 'en', strength: 2 })
+      .sort({ createdAt: -1 })
+      .limit(50);
+    res.json(alerts);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.get('/api/live-rainfall/:lat/:lng', async (req, res) => {
