@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { getRainfall, getRainfall24h } = require('./services/weather');
+const { getRainfall, getRainfall24h, getRainfall24hMany } = require('./services/weather');
 const { calculateRisk } = require('./services/risk');
 const DistrictRainfall = require('./models/districtRainfall');
 const express = require('express');
@@ -282,6 +282,62 @@ app.get('/api/district-rainfall/:district', async (req, res) => {
       return res.status(404).json({ error: 'District not found' });
     }
     res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Risk for ALL districts in one call
+//   /api/risk
+//   /api/risk?simulateRain=150                          -> every district gets 150 mm
+//   /api/risk?simulateRain=150&simulateDistrict=Udupi   -> only Udupi gets 150 mm
+const RAIN_CACHE_MS = 10 * 60 * 1000;  // 10 minutes
+let rainCache = { time: 0, key: '', data: null };
+
+app.get('/api/risk', async (req, res) => {
+  try {
+    const districts = await DistrictRainfall.find({ lat: { $ne: null }, lng: { $ne: null } })
+      .sort({ district: 1 });
+    if (districts.length === 0) {
+      return res.status(404).json({ error: 'No districts with locations. Run add-district-coordinates.js' });
+    }
+
+    // Real rainfall, reused for 10 minutes
+    const key = districts.map((d) => d.district).join('|');
+    const cacheIsOld = Date.now() - rainCache.time > RAIN_CACHE_MS;
+    if (!rainCache.data || rainCache.key !== key || cacheIsOld) {
+      const data = await getRainfall24hMany(districts.map((d) => ({ lat: d.lat, lng: d.lng })));
+      rainCache = { time: Date.now(), key, data };
+    }
+
+    // For demos
+    const simulated = req.query.simulateRain !== undefined ? parseFloat(req.query.simulateRain) : NaN;
+    const simulateDistrict = (req.query.simulateDistrict || '').toLowerCase();
+
+    const results = districts.map((d, i) => {
+      let rain = rainCache.data[i];
+      const applies = !simulateDistrict || d.district.toLowerCase() === simulateDistrict;
+      if (!Number.isNaN(simulated) && applies) {
+        rain = { ...rain, next24h: simulated, simulated: true };
+      }
+      return {
+        district: d.district,
+        lat: d.lat,
+        lng: d.lng,
+        rainfall: rain,
+        risk: calculateRisk(rain, d)
+      };
+    });
+
+    // Highest risk first
+    results.sort((a, b) => b.risk.score - a.risk.score || a.district.localeCompare(b.district));
+
+    const summary = { green: 0, yellow: 0, orange: 0, red: 0 };
+    for (const r of results) {
+      summary[r.risk.color]++;
+    }
+
+    res.json({ updatedAt: new Date(rainCache.time), summary, districts: results });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
