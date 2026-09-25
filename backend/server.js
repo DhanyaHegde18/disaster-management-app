@@ -69,6 +69,7 @@ app.post('/api/auth/request-otp', async (req, res) => {
 // Step 2 of login: check the code.
 // Body: { "phone": "...", "code": "123456" }
 // First time as villager, also: "name", "village", "district"
+// First time as Control Centre, also: "registerAs": "control", "name", "district"
 // First time as NGO, also: "registerAs": "ngo", "name" (contact person), "ngoName", "district", "services", "location"
 app.post('/api/auth/verify-otp', async (req, res) => {
   const phone = normalizePhone(req.body.phone);
@@ -103,7 +104,14 @@ app.post('/api/auth/verify-otp', async (req, res) => {
         return res.status(400).json({ error: 'New user: please give your name', needsName: true });
       }
 
-      if (registerAs === 'ngo') {
+      if (registerAs === 'control') {
+        // Control Centre officer. If CONTROL_PHONES is set in .env, only those numbers may register.
+        const allowed = (process.env.CONTROL_PHONES || '').split(',').map(normalizePhone).filter(Boolean);
+        if (allowed.length > 0 && !allowed.includes(phone)) {
+          return res.status(403).json({ error: 'This number is not allowed to register as Control Centre' });
+        }
+        user = await User.create({ name, phone, role: 'control', district: req.body.district });
+      } else if (registerAs === 'ngo') {
         if (!req.body.ngoName) {
           return res.status(400).json({ error: 'Please give the NGO name', needsNgoName: true });
         }
@@ -168,8 +176,100 @@ app.get('/api/risk-zones', async (req, res) => {
 });
 
 app.get('/api/shelters', async (req, res) => {
-  const shelters = await Shelter.find();
-  res.json(shelters);
+  try {
+    const shelters = await Shelter.find().sort({ name: 1 });
+    res.json(shelters);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Full when occupancy reaches capacity, otherwise Available
+function shelterStatus(shelter) {
+  return shelter.capacity > 0 && shelter.currentOccupancy >= shelter.capacity ? 'Full' : 'Available';
+}
+
+// Add a shelter (Control Centre). Body: { name, lat, lng, capacity, currentOccupancy? }
+app.post('/api/shelters', requireRole('control'), async (req, res) => {
+  const { name, lat, lng, capacity } = req.body;
+  const currentOccupancy = Number(req.body.currentOccupancy) || 0;
+
+  if (!name || !String(name).trim()) {
+    return res.status(400).json({ error: 'Please give the shelter name' });
+  }
+  if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) {
+    return res.status(400).json({ error: 'Please give a valid latitude and longitude' });
+  }
+  if (!(Number(capacity) > 0)) {
+    return res.status(400).json({ error: 'Capacity must be more than 0' });
+  }
+
+  try {
+    const shelter = new Shelter({
+      name: String(name).trim(),
+      lat: Number(lat),
+      lng: Number(lng),
+      capacity: Number(capacity),
+      currentOccupancy: Math.max(0, currentOccupancy),
+    });
+    shelter.status = shelterStatus(shelter);
+    await shelter.save();
+    res.status(201).json(shelter);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Update occupancy or capacity (Control Centre). Body: { currentOccupancy?, capacity? }
+app.patch('/api/shelters/:id', requireRole('control'), async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid shelter id' });
+  }
+
+  try {
+    const shelter = await Shelter.findById(req.params.id);
+    if (!shelter) {
+      return res.status(404).json({ error: 'Shelter not found' });
+    }
+
+    if (req.body.capacity !== undefined) {
+      const capacity = Number(req.body.capacity);
+      if (!(capacity > 0)) {
+        return res.status(400).json({ error: 'Capacity must be more than 0' });
+      }
+      shelter.capacity = capacity;
+    }
+
+    if (req.body.currentOccupancy !== undefined) {
+      const occupancy = Number(req.body.currentOccupancy);
+      if (!Number.isFinite(occupancy) || occupancy < 0) {
+        return res.status(400).json({ error: 'Occupancy must be 0 or more' });
+      }
+      shelter.currentOccupancy = Math.min(occupancy, shelter.capacity);
+    }
+
+    shelter.status = shelterStatus(shelter);
+    await shelter.save();
+    res.json(shelter);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Remove a shelter (Control Centre)
+app.delete('/api/shelters/:id', requireRole('control'), async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid shelter id' });
+  }
+  try {
+    const shelter = await Shelter.findByIdAndDelete(req.params.id);
+    if (!shelter) {
+      return res.status(404).json({ error: 'Shelter not found' });
+    }
+    res.json({ message: 'Shelter removed' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Create SOS. Works with or without login, so a help request is never blocked.
@@ -207,7 +307,7 @@ app.post('/api/sos', optionalAuth, async (req, res) => {
 //   /api/sos                    -> all requests
 //   /api/sos?status=active      -> Pending + In Progress
 //   /api/sos?status=Pending     -> only one status
-app.get('/api/sos', requireRole('ngo'), async (req, res) => {
+app.get('/api/sos', requireRole('ngo', 'control'), async (req, res) => {
   try {
     const filter = {};
     const { status } = req.query;
@@ -239,7 +339,7 @@ app.get('/api/sos/mine', requireAuth, async (req, res) => {
 });
 
 // One SOS request by id
-app.get('/api/sos/:id', requireRole('ngo'), async (req, res) => {
+app.get('/api/sos/:id', requireRole('ngo', 'control'), async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).json({ error: 'Invalid SOS id' });
   }
@@ -359,7 +459,7 @@ app.get('/api/ngos/:id', async (req, res) => {
 
 // Trigger an alert
 // Body: { "village": "...", "district": "...", "riskLevel": "Severe", "phones": ["+91..."], "message": "(optional)" }
-app.post('/api/alerts/trigger', requireRole('ngo'), async (req, res) => {
+app.post('/api/alerts/trigger', requireRole('ngo', 'control'), async (req, res) => {
   const { village, district, riskLevel, message, phones } = req.body;
 
   if (!village && !district) {

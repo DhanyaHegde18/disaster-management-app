@@ -4011,3 +4011,384 @@ nav {
   opacity: 0.6;
   cursor: wait;
 }
+
+/* =========================
+   CONTROL CENTRE: extra dashboard fixes
+========================= */
+
+.alert-row small {
+  display: block;
+  margin-top: 4px;
+  color: #5f6d72;
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.panel-empty {
+  margin: 14px 0;
+  color: #8b979d;
+  font-size: 10px;
+}
+
+.nav-item {
+  cursor: pointer;
+}
+
+/* =========================
+   CONTROL CENTRE: full pages
+========================= */
+
+.cc-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.cc-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.cc-view-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.cc-view-header p {
+  margin: 4px 0 0;
+  color: #7d898f;
+  font-size: 11px;
+}
+
+.cc-primary-btn {
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #e4312b;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cc-primary-btn:hover {
+  background: #c9241f;
+}
+
+.cc-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cc-tab {
+  padding: 7px 12px;
+  border: 1px solid #dfe5e7;
+  border-radius: 20px;
+  background: white;
+  color: #43545a;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.cc-tab b {
+  margin-left: 4px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: #eef2f3;
+  font-size: 10px;
+}
+
+.cc-tab.active {
+  border-color: #10242b;
+  background: #10242b;
+  color: white;
+}
+
+.cc-tab.active b {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.cc-list {
+  padding: 6px 18px;
+}
+
+.cc-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid #edf0f1;
+}
+
+.cc-row:last-child {
+  border-bottom: none;
+}
+
+.cc-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.cc-row-main strong {
+  display: block;
+  color: #17212b;
+  font-size: 12px;
+}
+
+.cc-row-main p {
+  margin: 4px 0 0;
+  color: #66757b;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.cc-row-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+  color: #8b979d;
+  font-size: 10px;
+}
+
+.cc-row-meta a {
+  color: #d45b36;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.cc-row-meta small {
+  font-size: 10px;
+}
+
+.cc-level,
+.cc-status {
+  flex-shrink: 0;
+  min-width: 92px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.cc-level-severe,
+.cc-level-critical { background: #fde8e8; color: #b91c1c; }
+.cc-level-high { background: #ffedd5; color: #c2410c; }
+.cc-level-moderate,
+.cc-level-medium { background: #fef9c3; color: #a16207; }
+.cc-level-low { background: #dcfce7; color: #15803d; }
+
+.cc-status-pending { background: #fde8e8; color: #b91c1c; }
+.cc-status-in-progress { background: #ffedd5; color: #c2410c; }
+.cc-status-resolved,
+.cc-status-available { background: #dcfce7; color: #15803d; }
+.cc-status-full { background: #eef2f3; color: #5f6d72; }
+
+.cc-capacity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.cc-capacity-bar {
+  width: 180px;
+  height: 6px;
+  border-radius: 4px;
+  background: #edf0f1;
+  overflow: hidden;
+}
+
+.cc-capacity-fill {
+  height: 100%;
+  background: #16a34a;
+}
+
+.cc-capacity-fill.medium { background: #f59e0b; }
+.cc-capacity-fill.high { background: #dc2626; }
+
+.cc-capacity small {
+  color: #66757b;
+  font-size: 10px;
+}
+
+.cc-empty {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.cc-empty span {
+  font-size: 26px;
+}
+
+.cc-empty strong {
+  display: block;
+  margin-top: 8px;
+  color: #17212b;
+  font-size: 13px;
+}
+
+.cc-empty p {
+  max-width: 420px;
+  margin: 6px auto 0;
+  color: #7d898f;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.cc-map-large {
+  height: 640px;
+}
+
+/* =========================
+   CONTROL CENTRE: shelter management
+========================= */
+
+.cc-form {
+  padding: 18px;
+}
+
+.cc-form h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+
+.cc-form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.cc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cc-field-wide {
+  grid-column: 1 / -1;
+}
+
+.cc-field span {
+  color: #7e8c91;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cc-field input {
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #dce3e5;
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 12px;
+  color: #17212b;
+}
+
+.cc-form-hint {
+  margin: 10px 0 0;
+  color: #8b979d;
+  font-size: 10px;
+}
+
+.cc-form-error {
+  margin: 8px 0 0;
+  color: #c0392b;
+  font-size: 11px;
+}
+
+.cc-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.cc-spacer {
+  flex: 1;
+}
+
+.cc-secondary-btn {
+  padding: 9px 14px;
+  border: 1px solid #dce3e5;
+  border-radius: 8px;
+  background: white;
+  color: #43545a;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cc-primary-btn:disabled,
+.cc-secondary-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.cc-occupancy {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border: 1px solid #dce3e5;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cc-occupancy button {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: #f5f8f8;
+  color: #17212b;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.cc-occupancy button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.cc-occupancy input {
+  width: 50px;
+  height: 30px;
+  border: 0;
+  border-inline: 1px solid #dce3e5;
+  font-family: inherit;
+  font-size: 12px;
+  text-align: center;
+}
+
+.cc-link-danger {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #b91c1c;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* Villager shelter list: live data */
+.shelter-empty {
+  margin: 16px 0;
+  color: #7d8b90;
+  font-size: 11px;
+}
+
+.shelter-full {
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #eef2f3;
+  color: #5f6d72;
+  font-size: 9px;
+  font-weight: 700;
+}

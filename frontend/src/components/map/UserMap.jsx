@@ -38,8 +38,10 @@ function routeLengthKm(points) {
   return total;
 }
 
+// shelter (optional): the shelter to route to; falls back to the demo shelter
 // onRouteInfo (optional): called with { shelter, userPos, distanceKm } whenever the route changes
-const UserMap = ({ onRouteInfo }) => {
+const UserMap = ({ shelter, onRouteInfo }) => {
+  const target = shelter || DEFAULT_SHELTER;
   const [userPos, setUserPos] = useState([13.0032, 75.3340]);
   const [roadRoute, setRoadRoute] = useState([]);
   const [isLiveGPS, setIsLiveGPS] = useState(false);
@@ -62,24 +64,24 @@ const UserMap = ({ onRouteInfo }) => {
 
   useEffect(() => {
     let active = true;
-    getRealRoadRoute(userPos, [DEFAULT_SHELTER.lat, DEFAULT_SHELTER.lng]).then((path) => {
+    getRealRoadRoute(userPos, [target.lat, target.lng]).then((path) => {
       if (active) setRoadRoute(path);
     });
     return () => { active = false; };
-  }, [userPos]);
+  }, [userPos, target.lat, target.lng]);
 
   // Tell the dashboard where the route goes and how long it is
   useEffect(() => {
     if (!onRouteInfo) return;
     const points = roadRoute.length > 1
       ? roadRoute
-      : [userPos, [DEFAULT_SHELTER.lat, DEFAULT_SHELTER.lng]];
+      : [userPos, [target.lat, target.lng]];
     onRouteInfo({
-      shelter: DEFAULT_SHELTER,
+      shelter: target,
       userPos,
       distanceKm: routeLengthKm(points),
     });
-  }, [roadRoute, userPos, onRouteInfo]);
+  }, [roadRoute, userPos, onRouteInfo, target]);
 
   // Clean up audio playback when component unmounts
   useEffect(() => {
@@ -122,7 +124,7 @@ const UserMap = ({ onRouteInfo }) => {
 
   const boundingPoints = roadRoute.length > 0
     ? roadRoute
-    : [userPos, [DEFAULT_SHELTER.lat, DEFAULT_SHELTER.lng]];
+    : [userPos, [target.lat, target.lng]];
 
   return (
     <div className="map-view-container">
@@ -142,7 +144,7 @@ const UserMap = ({ onRouteInfo }) => {
           >
             {isSpeaking ? '⏹️ ಧ್ವನಿ ನಿಲ್ಲಿಸಿ' : '🔊 ತುರ್ತು ಸುರಕ್ಷತಾ ಧ್ವನಿ (ಕನ್ನಡ)'}
           </button>
-          <span>Shelter: <strong>{DEFAULT_SHELTER.name}</strong></span>
+          <span>Shelter: <strong>{target.name}</strong></span>
         </div>
       </div>
 
@@ -172,12 +174,18 @@ const UserMap = ({ onRouteInfo }) => {
           </>
         )}
 
-        <Marker position={[DEFAULT_SHELTER.lat, DEFAULT_SHELTER.lng]} icon={shelterIcon}>
+        <Marker position={[target.lat, target.lng]} icon={shelterIcon}>
           <Popup>
             <div className="popup-card">
-              <h4>🏥 {DEFAULT_SHELTER.name}</h4>
-              <p>Status: <span className="status-badge open">{DEFAULT_SHELTER.status}</span></p>
-              <p>Capacity: <strong>{DEFAULT_SHELTER.availableSpaces}</strong> / {DEFAULT_SHELTER.capacity} berths free</p>
+              <h4>🏥 {target.name}</h4>
+              <p>Status: <span className="status-badge open">{target.status}</span></p>
+              <p>
+                Places free:{' '}
+                <strong>
+                  {target.availableSpaces ?? Math.max(0, (target.capacity || 0) - (target.currentOccupancy || 0))}
+                </strong>{' '}
+                / {target.capacity}
+              </p>
             </div>
           </Popup>
         </Marker>

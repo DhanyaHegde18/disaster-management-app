@@ -9,7 +9,7 @@ const ROLES = [
     description: "Receive alerts, send SOS and find safe shelters",
   },
   {
-    id: "official",
+    id: "control",
     icon: "🏢",
     title: "Control Centre",
     description: "Monitor risks, alerts, SOS requests and response",
@@ -55,8 +55,6 @@ function Login({ onLogin }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Control Centre has no account type in the backend yet, so it opens directly
-  const needsOtp = selectedRole !== "official";
 
   const chooseRole = (roleId) => {
     setSelectedRole(roleId);
@@ -66,11 +64,6 @@ function Login({ onLogin }) {
 
   // STEP 1: send the code
   const handleSendCode = async () => {
-    if (!needsOtp) {
-      onLogin({ role: "official", token: null, user: null });
-      return;
-    }
-
     const digits = phone.replace(/\D/g, "");
     if (!/^[6-9]\d{9}$/.test(digits)) {
       setError("Please enter a valid 10-digit mobile number.");
@@ -127,6 +120,8 @@ function Login({ onLogin }) {
       if (selectedRole === "ngo") {
         body.registerAs = "ngo";
         body.ngoName = ngoName.trim();
+      } else if (selectedRole === "control") {
+        body.registerAs = "control";
       } else {
         body.village = village.trim();
       }
@@ -288,24 +283,22 @@ function Login({ onLogin }) {
               </div>
 
               {/* MOBILE NUMBER */}
-              {needsOtp && (
-                <div className="input-section">
-                  <label htmlFor="mobile">MOBILE NUMBER</label>
-                  <div className="input-wrapper">
-                    <span>+91</span>
-                    <input
-                      id="mobile"
-                      type="tel"
-                      inputMode="numeric"
-                      maxLength={10}
-                      placeholder="Enter your mobile number"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                      onKeyDown={(e) => handleKeyDown(e, handleSendCode)}
-                    />
-                  </div>
+              <div className="input-section">
+                <label htmlFor="mobile">MOBILE NUMBER</label>
+                <div className="input-wrapper">
+                  <span>+91</span>
+                  <input
+                    id="mobile"
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    placeholder="Enter your mobile number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                    onKeyDown={(e) => handleKeyDown(e, handleSendCode)}
+                  />
                 </div>
-              )}
+              </div>
 
               {error && <p className="login-error">{error}</p>}
 
@@ -315,11 +308,7 @@ function Login({ onLogin }) {
                 disabled={loading}
                 type="button"
               >
-                {loading
-                  ? "Sending code..."
-                  : needsOtp
-                  ? "Send OTP"
-                  : `Continue as ${roleTitle(selectedRole)}`}
+                {loading ? "Sending code..." : "Send OTP"}
                 <span>→</span>
               </button>
             </>
@@ -361,7 +350,11 @@ function Login({ onLogin }) {
 
                   <div className="input-section">
                     <label htmlFor="name">
-                      {selectedRole === "ngo" ? "CONTACT PERSON NAME" : "YOUR NAME"}
+                      {selectedRole === "ngo"
+                        ? "CONTACT PERSON NAME"
+                        : selectedRole === "control"
+                        ? "OFFICER NAME"
+                        : "YOUR NAME"}
                     </label>
                     <div className="input-wrapper">
                       <input
@@ -374,7 +367,7 @@ function Login({ onLogin }) {
                     </div>
                   </div>
 
-                  {selectedRole === "ngo" ? (
+                  {selectedRole === "control" ? null : selectedRole === "ngo" ? (
                     <div className="input-section">
                       <label htmlFor="ngoName">NGO NAME</label>
                       <div className="input-wrapper">

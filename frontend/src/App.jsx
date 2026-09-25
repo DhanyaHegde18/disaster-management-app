@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import Login from "./Login";
 import ProfileMenu from "./components/ProfileMenu";
-import { clearSession, loadSession, saveSession } from "./api";
+import { apiFetch, clearSession, initials, loadSession, saveSession } from "./api";
+import { AlertsView, MapView, RespondersView, SheltersView, SOSView } from "./components/ControlViews";
 import VillagerDashboard from "./VillagerDashboard";
 import NgoDashboard from "./NgoDashboard";
 import GramPanchayatMap from "./components/map/GramPanchayatMap";
@@ -9,7 +10,10 @@ import "./App.css";
 
 function App() {
   // Logged-in session: { role, token, user }. Kept in localStorage so a refresh stays logged in.
-  const [session, setSession] = useState(() => loadSession());
+  const [session, setSession] = useState(() => {
+    const saved = loadSession();
+    return saved?.token ? saved : null;   // sessions from before OTP login have no token
+  });
   const loggedIn = Boolean(session);
   const role = session?.role || null;
 
@@ -17,7 +21,15 @@ function App() {
   // LIVE BACKEND DATA
   // =========================================================
 
-  const [sosRequests, setSosRequests] = useState([]);
+  const [sosRequests, setSosRequests] = useState([]);   // active (not resolved)
+  const [allSOS, setAllSOS] = useState([]);             // every request, for the SOS page
+  const [ngos, setNgos] = useState([]);
+  const [ngosLoading, setNgosLoading] = useState(true);
+  const [ngosError, setNgosError] = useState("");
+
+  // Which Control Centre page is open: dashboard | alerts | sos | map | shelters | responders
+  const [activeView, setActiveView] = useState("dashboard");
+  const [sosFilter, setSosFilter] = useState("active");
   const [riskZones, setRiskZones] = useState([]);
   const [shelters, setShelters] = useState([]);
 
@@ -69,19 +81,17 @@ function App() {
     try {
       setSosError("");
 
-      const response = await fetch(
-        "http://localhost:5000/api/sos?status=active"
-      );
+      const data = await apiFetch("/api/sos");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch SOS requests");
-      }
-
-      const data = await response.json();
-      setSosRequests(data);
+      setAllSOS(data);
+      setSosRequests(data.filter((sos) => sos.status !== "Resolved"));
     } catch (error) {
       console.error("SOS fetch error:", error);
-      setSosError("Unable to load live SOS data.");
+      setSosError(
+        error.status === 401 || error.status === 403
+          ? "Please log out and log in again as Control Centre."
+          : "Unable to load live SOS data."
+      );
     } finally {
       setSosLoading(false);
     }
@@ -95,15 +105,8 @@ function App() {
     try {
       setRiskError("");
 
-      const response = await fetch(
-        "http://localhost:5000/api/risk-zones"
-      );
+      const data = await apiFetch("/api/risk-zones");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch risk zones");
-      }
-
-      const data = await response.json();
       setRiskZones(data);
     } catch (error) {
       console.error("Risk zones fetch error:", error);
@@ -121,15 +124,8 @@ function App() {
     try {
       setShelterError("");
 
-      const response = await fetch(
-        "http://localhost:5000/api/shelters"
-      );
+      const data = await apiFetch("/api/shelters");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch shelters");
-      }
-
-      const data = await response.json();
       setShelters(data);
     } catch (error) {
       console.error("Shelters fetch error:", error);
@@ -143,19 +139,24 @@ function App() {
   // FETCH ALERTS
   // =========================================================
 
+  const fetchNgos = async () => {
+    try {
+      setNgosError("");
+      const data = await apiFetch("/api/ngos");
+      setNgos(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("NGO fetch error:", error);
+      setNgosError("Unable to load responders.");
+    } finally {
+      setNgosLoading(false);
+    }
+  };
+
   const fetchAlerts = async () => {
     try {
       setAlertsError("");
 
-      const response = await fetch(
-        "http://localhost:5000/api/alerts"
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch alerts");
-      }
-
-      const data = await response.json();
+      const data = await apiFetch("/api/alerts");
 
       setAlerts(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -171,22 +172,43 @@ function App() {
   // =========================================================
 
   useEffect(() => {
-    if (loggedIn && role === "official") {
+    if (loggedIn && role === "control") {
       fetchSOSRequests();
       fetchRiskZones();
       fetchShelters();
       fetchAlerts();
+      fetchNgos();
 
       const interval = setInterval(() => {
         fetchSOSRequests();
         fetchRiskZones();
         fetchShelters();
         fetchAlerts();
+        fetchNgos();
       }, 5000);
 
       return () => clearInterval(interval);
     }
   }, [loggedIn, role]);
+
+  // =========================================================
+  // PAGE NAVIGATION
+  // =========================================================
+
+  const VIEW_TITLES = {
+    dashboard: "OVERVIEW",
+    alerts: "LIVE ALERTS",
+    sos: "SOS REQUESTS",
+    map: "RISK MAP",
+    shelters: "SHELTERS",
+    responders: "RESPONDERS",
+  };
+
+  const openView = (view, sosTab) => {
+    setActiveView(view);
+    if (sosTab) setSosFilter(sosTab);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // =========================================================
   // OPEN ALERT MODAL
@@ -250,28 +272,14 @@ function App() {
       setAlertError("");
       setAlertMessage("");
 
-      const response = await fetch(
-        "http://localhost:5000/api/alerts/trigger",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+      const data = await apiFetch("/api/alerts/trigger", {
+        method: "POST",
+        body: JSON.stringify({
             village: alertVillage,
             district: alertDistrict,
             riskLevel: alertRiskLevel,
           }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.error || "Failed to trigger emergency alert"
-        );
-      }
+      });
 
       setAlertMessage(
         `${data.message || `Emergency alert triggered for ${alertVillage}`}${
@@ -430,6 +438,16 @@ function App() {
       zone.riskLevel?.toLowerCase() === "critical"
   ).length;
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+  // NGOs currently handling at least one SOS
+  const busyNgoIds = new Set(
+    sosRequests
+      .filter((sos) => sos.status === "In Progress" && sos.assignedTo)
+      .map((sos) => sos.assignedTo._id || sos.assignedTo)
+  );
+
   const availableShelters = shelters.filter(
     (shelter) => shelter.status !== "Full"
   ).length;
@@ -474,43 +492,55 @@ function App() {
 
 
         <nav>
-
-          <button className="nav-item active">
+          <button
+            className={`nav-item ${activeView === "dashboard" ? "active" : ""}`}
+            onClick={() => openView("dashboard")}
+          >
             <span>▦</span>
             Dashboard
           </button>
 
-          <button className="nav-item">
+          <button
+            className={`nav-item ${activeView === "alerts" ? "active" : ""}`}
+            onClick={() => openView("alerts")}
+          >
             <span>⚠</span>
             Live Alerts
-            <b className="nav-badge">
-              {alerts.length}
-            </b>
+            <b className="nav-badge">{alerts.length}</b>
           </button>
 
-          <button className="nav-item">
+          <button
+            className={`nav-item ${activeView === "sos" ? "active" : ""}`}
+            onClick={() => openView("sos")}
+          >
             <span>🆘</span>
             SOS Requests
-            <b className="nav-badge red">
-              {sosRequests.length}
-            </b>
+            <b className="nav-badge red">{sosRequests.length}</b>
           </button>
 
-          <button className="nav-item">
+          <button
+            className={`nav-item ${activeView === "map" ? "active" : ""}`}
+            onClick={() => openView("map")}
+          >
             <span>⌖</span>
             Risk Map
           </button>
 
-          <button className="nav-item">
+          <button
+            className={`nav-item ${activeView === "shelters" ? "active" : ""}`}
+            onClick={() => openView("shelters")}
+          >
             <span>⌂</span>
             Shelters
           </button>
 
-          <button className="nav-item">
+          <button
+            className={`nav-item ${activeView === "responders" ? "active" : ""}`}
+            onClick={() => openView("responders")}
+          >
             <span>♧</span>
             Responders
           </button>
-
         </nav>
 
 
@@ -552,11 +582,11 @@ function App() {
           <div>
 
             <p className="breadcrumb">
-              CONTROL CENTRE / OVERVIEW
+              CONTROL CENTRE / {VIEW_TITLES[activeView]}
             </p>
 
             <h1>
-              Good morning, Officer
+              {greeting}, {session.user?.name?.split(" ")[0] || "Officer"}
             </h1>
 
             <p className="subtitle">
@@ -573,7 +603,11 @@ function App() {
               LIVE
             </div>
 
-            <button className="notification">
+            <button
+              className="notification"
+              onClick={() => openView("alerts")}
+              title="Open live alerts"
+            >
               🔔
               <span>{alerts.length}</span>
             </button>
@@ -581,9 +615,10 @@ function App() {
             <ProfileMenu
               className="profile"
               avatarClassName="avatar"
-              initials="OC"
-              name="Control Officer"
-              subtitle="Administrator"
+              initials={initials(session.user?.name || "Control Officer")}
+              name={session.user?.name || "Control Officer"}
+              subtitle="Control Centre"
+              phone={session.user?.phone}
               onLogout={handleLogout}
             />
 
@@ -592,6 +627,8 @@ function App() {
         </header>
 
 
+        {activeView === "dashboard" && (
+          <>
         {/* ===================================================
             ALERT BANNER
         =================================================== */}
@@ -627,7 +664,7 @@ function App() {
 
           </div>
 
-          <button className="view-alert">
+          <button className="view-alert" onClick={() => openView("alerts")}>
             View Alert →
           </button>
 
@@ -710,13 +747,10 @@ function App() {
 
             </div>
 
-            <h2>18</h2>
-
+            <h2>{ngos.length}</h2>
             <p>
-              <span className="up">
-                ↑ 4
-              </span>
-              currently active
+              <span className="up">{busyNgoIds.size}</span>
+              {" "}currently responding
             </p>
 
           </div>
@@ -776,7 +810,7 @@ function App() {
 
               </div>
 
-              <button className="outline-btn">
+              <button className="outline-btn" onClick={() => openView("map")}>
                 Full Map ↗
               </button>
 
@@ -971,7 +1005,7 @@ function App() {
             </div>
 
 
-            <button className="view-all">
+            <button className="view-all" onClick={() => openView("sos", "active")}>
               View all SOS requests →
             </button>
 
@@ -1006,7 +1040,7 @@ function App() {
 
               </div>
 
-              <button className="text-btn">
+              <button className="text-btn" onClick={() => openView("alerts")}>
                 View all →
               </button>
 
@@ -1172,7 +1206,7 @@ function App() {
 
               </div>
 
-              <button className="text-btn">
+              <button className="text-btn" onClick={() => openView("shelters")}>
                 Manage →
               </button>
 
@@ -1301,86 +1335,42 @@ function App() {
 
               </div>
 
-              <button className="text-btn">
+              <button className="text-btn" onClick={() => openView("responders")}>
                 View all →
               </button>
 
             </div>
 
 
-            <div className="responder">
+            {ngosLoading && (
+              <p className="panel-empty">Loading responders...</p>
+            )}
 
-              <div className="responder-icon">
-                🚑
-              </div>
+            {!ngosLoading && ngos.length === 0 && (
+              <p className="panel-empty">
+                No NGOs registered yet. They appear after their first login.
+              </p>
+            )}
 
-              <div>
+            {ngos.slice(0, 3).map((ngo) => {
+              const busy = busyNgoIds.has(ngo._id);
+              return (
+                <div className="responder" key={ngo._id}>
+                  <div className="responder-icon">🚑</div>
 
-                <strong>
-                  Coastal Rescue Team
-                </strong>
+                  <div>
+                    <strong>{ngo.name}</strong>
+                    <span>
+                      {[ngo.district, ngo.contactPerson].filter(Boolean).join(" · ") || "NGO"}
+                    </span>
+                  </div>
 
-                <span>
-                  Udupi · 3 members
-                </span>
-
-              </div>
-
-              <b className="on-way">
-                On Way
-              </b>
-
-            </div>
-
-
-            <div className="responder">
-
-              <div className="responder-icon">
-                🏥
-              </div>
-
-              <div>
-
-                <strong>
-                  Seva Foundation
-                </strong>
-
-                <span>
-                  Karkala · 5 members
-                </span>
-
-              </div>
-
-              <b className="accepted">
-                Accepted
-              </b>
-
-            </div>
-
-
-            <div className="responder">
-
-              <div className="responder-icon">
-                🤝
-              </div>
-
-              <div>
-
-                <strong>
-                  Helping Hands
-                </strong>
-
-                <span>
-                  Kundapura · 4 members
-                </span>
-
-              </div>
-
-              <b className="reached">
-                Reached
-              </b>
-
-            </div>
+                  <b className={busy ? "on-way" : "accepted"}>
+                    {busy ? "Responding" : "Available"}
+                  </b>
+                </div>
+              );
+            })}
 
           </div>
 
@@ -1416,6 +1406,48 @@ function App() {
 
         </section>
 
+
+          </>
+        )}
+
+        {activeView === "alerts" && (
+          <AlertsView
+            alerts={alerts}
+            loading={alertsLoading}
+            error={alertsError}
+            onNewAlert={openAlertModal}
+          />
+        )}
+
+        {activeView === "sos" && (
+          <SOSView
+            requests={allSOS}
+            loading={sosLoading}
+            error={sosError}
+            filter={sosFilter}
+            onFilterChange={setSosFilter}
+          />
+        )}
+
+        {activeView === "map" && <MapView />}
+
+        {activeView === "shelters" && (
+          <SheltersView
+            shelters={shelters}
+            loading={shelterLoading}
+            error={shelterError}
+            onChanged={fetchShelters}
+          />
+        )}
+
+        {activeView === "responders" && (
+          <RespondersView
+            ngos={ngos}
+            loading={ngosLoading}
+            error={ngosError}
+            sosRequests={sosRequests}
+          />
+        )}
 
         {/* ===================================================
             EMERGENCY ALERT MODAL

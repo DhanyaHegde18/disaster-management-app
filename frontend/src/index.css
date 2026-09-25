@@ -37,12 +37,9 @@ body {
   margin: 0;
 }
 
+/* Full-width app: each page (login, dashboards) sets its own layout */
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  width: 100%;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -53,7 +50,8 @@ h1,
 h2 {
   font-family: var(--heading);
   font-weight: 500;
-  color: var(--text-h);
+  /* no colour here: headings take their section's colour
+     (dark on light cards, white on the dark sidebar and headers) */
 }
 
 h1 {

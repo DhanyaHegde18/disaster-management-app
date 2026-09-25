@@ -8,12 +8,27 @@ import { getPendingCount, startAutoSync } from "./utils/offlineSOS";
 // Average road speed used for the evacuation time estimate (ghat roads, rain)
 const ROAD_SPEED_KMPH = 30;
 
+// Used for shelter distances until the map reports the villager's real position (Ujire)
+const DEFAULT_POSITION = [13.0032, 75.334];
+
+// Straight-line distance in km between two [lat, lng] points
+function distanceKm([lat1, lng1], [lat2, lng2]) {
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 function VillagerDashboard({ user, onLogout }) {
   const [showSOS, setShowSOS] = useState(false);
   const [sosNotice, setSosNotice] = useState("");      // message after sending
   const [myRequests, setMyRequests] = useState([]);    // this villager's SOS from the backend
   const [pendingOffline, setPendingOffline] = useState(0);
   const [routeInfo, setRouteInfo] = useState(null);    // { shelter, userPos, distanceKm } from the map
+  const [shelters, setShelters] = useState([]);        // live shelters from the backend
 
   const evacuationRef = useRef(null);
 
@@ -34,6 +49,21 @@ function VillagerDashboard({ user, onLogout }) {
     } catch (err) {
       console.warn("Could not load your SOS status:", err.message);
     }
+  }, []);
+
+  // Shelters managed by the Control Centre, refreshed every 30 seconds
+  useEffect(() => {
+    const loadShelters = async () => {
+      try {
+        const data = await apiFetch("/api/shelters");
+        setShelters(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.warn("Could not load shelters:", err.message);
+      }
+    };
+    loadShelters();
+    const interval = setInterval(loadShelters, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -61,6 +91,19 @@ function VillagerDashboard({ user, onLogout }) {
   // Latest request that isn't finished yet
   const activeRequest = myRequests.find((sos) => sos.status !== "Resolved");
   const hasActiveSOS = Boolean(activeRequest) || pendingOffline > 0;
+
+  // Shelters sorted by distance; the route goes to the nearest one that isn't full
+  const myPosition = routeInfo?.userPos || DEFAULT_POSITION;
+  const nearbyShelters = shelters
+    .filter((shelter) => Number.isFinite(shelter.lat) && Number.isFinite(shelter.lng))
+    .map((shelter) => ({
+      ...shelter,
+      distance: distanceKm(myPosition, [shelter.lat, shelter.lng]),
+      isFull: shelter.status === "Full" || shelter.currentOccupancy >= shelter.capacity,
+    }))
+    .sort((a, b) => a.distance - b.distance);
+  const nearestOpenId = nearbyShelters.find((shelter) => !shelter.isFull)?._id;
+  const routeShelter = shelters.find((shelter) => shelter._id === nearestOpenId);
 
   const scrollToMap = () => {
     evacuationRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -304,60 +347,47 @@ function VillagerDashboard({ user, onLogout }) {
             </div>
 
 
-            <div className="shelter-card">
+            {nearbyShelters.length === 0 && (
+              <p className="shelter-empty">
+                No shelters listed yet. Your Control Centre will add them here.
+              </p>
+            )}
 
-              <div className="shelter-icon">🏠</div>
-
-              <div className="shelter-info">
-                <strong>Government PU College</strong>
-                <span>1.2 km away · Udupi</span>
-
-                <div className="capacity-row">
-                  <div className="capacity-bar">
-                    <div
-                      className="capacity-fill orange-capacity"
-                      style={{ width: "78%" }}
-                    ></div>
+            {nearbyShelters.slice(0, 3).map((shelter) => {
+              const percent = shelter.capacity
+                ? Math.min(100, Math.round((shelter.currentOccupancy / shelter.capacity) * 100))
+                : 0;
+              return (
+                <div className="shelter-card" key={shelter._id}>
+                  <div className="shelter-icon">
+                    {shelter._id === nearestOpenId ? "⭐" : "🏠"}
                   </div>
 
-                  <small>78% full</small>
-                </div>
+                  <div className="shelter-info">
+                    <strong>{shelter.name}</strong>
+                    <span>
+                      {shelter.distance.toFixed(1)} km away
+                      {shelter._id === nearestOpenId ? " · Nearest with space" : ""}
+                    </span>
 
-              </div>
+                    <div className="capacity-row">
+                      <div className="capacity-bar">
+                        <div
+                          className={`capacity-fill ${percent >= 70 ? "orange-capacity" : "green-capacity"}`}
+                          style={{ width: `${percent}%` }}
+                        ></div>
+                      </div>
 
-              <span className="available">
-                Available
-              </span>
-
-            </div>
-
-
-            <div className="shelter-card">
-
-              <div className="shelter-icon">🏫</div>
-
-              <div className="shelter-info">
-                <strong>Community Hall</strong>
-                <span>2.4 km away · Udupi</span>
-
-                <div className="capacity-row">
-                  <div className="capacity-bar">
-                    <div
-                      className="capacity-fill green-capacity"
-                      style={{ width: "42%" }}
-                    ></div>
+                      <small>{percent}% full</small>
+                    </div>
                   </div>
 
-                  <small>42% full</small>
+                  <span className={shelter.isFull ? "shelter-full" : "available"}>
+                    {shelter.isFull ? "Full" : "Available"}
+                  </span>
                 </div>
-
-              </div>
-
-              <span className="available">
-                Available
-              </span>
-
-            </div>
+              );
+            })}
 
 
             <button className="route-button" onClick={scrollToMap}>
@@ -386,7 +416,7 @@ function VillagerDashboard({ user, onLogout }) {
           </div>
 
           <div className="embedded-map">
-            <UserMap onRouteInfo={setRouteInfo} />
+            <UserMap shelter={routeShelter} onRouteInfo={setRouteInfo} />
           </div>
 
           <div className="route-preview route-preview-single">
