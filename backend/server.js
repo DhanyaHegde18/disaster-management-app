@@ -1,4 +1,9 @@
 require('dotenv').config();
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
+const User = require('./models/user');
+const Otp = require('./models/otp');
+const { normalizePhone, createToken, optionalAuth, requireAuth, requireRole } = require('./services/auth');
 const { getRainfall, getRainfall24h, getRainfall24hMany } = require('./services/weather');
 const { calculateRisk } = require('./services/risk');
 const DistrictRainfall = require('./models/districtRainfall');
@@ -9,6 +14,124 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// ---------- AUTH (villager login with OTP) ----------
+
+// What we send back about a user (never the password)
+function publicUser(user) {
+  return {
+    _id: user._id,
+    name: user.name,
+    phone: user.phone,
+    role: user.role,
+    village: user.village,
+    district: user.district,
+    ngo: user.ngo
+  };
+}
+
+// Step 1 of login: send a code. Body: { "phone": "9876543210" }
+app.post('/api/auth/request-otp', async (req, res) => {
+  const phone = normalizePhone(req.body.phone);
+  if (!phone) {
+    return res.status(400).json({ error: 'Please give a valid 10-digit Indian mobile number' });
+  }
+
+  try {
+    const code = crypto.randomInt(100000, 1000000).toString();  // 6 digits
+
+    await Otp.deleteMany({ phone });  // remove any older code for this phone
+    await Otp.create({
+      phone,
+      codeHash: await bcrypt.hash(code, 10),
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000)  // 5 minutes
+    });
+
+    const sms = await deliverSMS([phone], `Your Disaster Alert login code is ${code}. It expires in 5 minutes.`);
+    if (sms.mode === 'live' && sms.sent === 0) {
+      return res.status(502).json({ error: 'Could not send the code. Please try again.' });
+    }
+
+    const isNewUser = !(await User.exists({ phone }));
+    const response = { message: 'Code sent', isNewUser, sms: sms.mode };
+
+    // Demo mode only: SMS is off, so show the code in the response
+    if (sms.mode === 'simulated') {
+      response.demoOtp = code;
+    }
+
+    res.json(response);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Step 2 of login: check the code.
+// Body: { "phone": "...", "code": "123456" }
+// First time also: "name", "village", "district"
+app.post('/api/auth/verify-otp', async (req, res) => {
+  const phone = normalizePhone(req.body.phone);
+  const code = String(req.body.code || '').trim();
+  if (!phone || !code) {
+    return res.status(400).json({ error: 'Please give phone and code' });
+  }
+
+  try {
+    const otp = await Otp.findOne({ phone });
+    if (!otp || otp.expiresAt < new Date()) {
+      return res.status(400).json({ error: 'Code expired or not found. Please request a new one.' });
+    }
+    if (otp.attempts >= 5) {
+      await otp.deleteOne();
+      return res.status(429).json({ error: 'Too many wrong tries. Please request a new code.' });
+    }
+
+    const correct = await bcrypt.compare(code, otp.codeHash);
+    if (!correct) {
+      otp.attempts += 1;
+      await otp.save();
+      return res.status(400).json({ error: 'Wrong code' });
+    }
+
+    let user = await User.findOne({ phone });
+
+    if (user && user.role !== 'villager') {
+      return res.status(403).json({ error: 'NGO and admin accounts log in with a password' });
+    }
+
+    if (!user) {
+      // First time: we need their name (the code stays valid, so the app can send it again with the name)
+      if (!req.body.name) {
+        return res.status(400).json({ error: 'New user: please give your name', needsName: true });
+      }
+      user = await User.create({
+        name: req.body.name,
+        phone,
+        role: 'villager',
+        village: req.body.village,
+        district: req.body.district
+      });
+    }
+
+    await otp.deleteOne();  // a code works only once
+    res.json({ token: createToken(user), user: publicUser(user) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Who am I? Needs the token in the header: Authorization: Bearer <token>
+app.get('/api/auth/me', requireAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(publicUser(user));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 app.get('/', (req, res) => {
   res.send('Server is running');
