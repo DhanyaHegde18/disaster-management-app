@@ -1,0 +1,223 @@
+/* Map styles from the map-feature branch, scoped to .map-view-container
+   so they don't clash with the dashboard styles in App.css. */
+
+/* Wrapper that gives an embedded map a fixed height inside a dashboard card */
+.embedded-map {
+  position: relative;
+  height: 460px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #dbe4de;
+  isolation: isolate; /* keeps Leaflet's z-indexes below modals */
+}
+
+.map-view-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.map-view-container .leaflet-map-frame {
+  width: 100%;
+  height: 100%;
+}
+
+.map-view-container .role-banner {
+  position: absolute;
+  top: 14px;
+  left: 60px;
+  z-index: 1000;
+  padding: 8px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(8px);
+}
+
+.map-view-container .banner-left { display: flex; align-items: center; gap: 10px; }
+.map-view-container .banner-right { display: flex; align-items: center; gap: 12px; }
+
+.map-view-container .banner-user { color: #1e3a8a; border: 1px solid #bfdbfe; }
+.map-view-container .banner-ngo { color: #7c2d12; border: 1px solid #fed7aa; }
+.map-view-container .banner-gp { color: #4338ca; border: 1px solid #ddd6fe; }
+
+.map-view-container .status-pill {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.map-view-container .pill-active { background: #dcfce7; color: #15803d; }
+.map-view-container .pill-sim { background: #e0f2fe; color: #0369a1; }
+
+.map-view-container .live-badge {
+  background-color: #ef4444;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Map pins */
+.map-view-container .custom-map-icon { background: transparent; border: none; }
+
+.map-view-container .badge-pin {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+}
+
+.map-view-container .pin-blue { background-color: #2563eb; color: #ffffff; }
+.map-view-container .pin-sky { background-color: #0284c7; color: #ffffff; }
+.map-view-container .pin-red { background-color: #dc2626; color: #ffffff; }
+.map-view-container .pin-sos { background-color: #b91c1c; color: #ffffff; animation: pulse-sos 1.2s infinite; }
+
+@keyframes pulse-sos {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+}
+
+/* Popups */
+.map-view-container .popup-card { padding: 2px; font-size: 0.85rem; color: #1e293b; }
+
+.map-view-container .popup-card h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #0f172a;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 3px;
+}
+
+.map-view-container .coord-text {
+  font-size: 0.72rem;
+  color: #64748b;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.map-view-container .status-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.map-view-container .status-badge.open { background: #dcfce7; color: #15803d; }
+
+/* Legend */
+.map-view-container .map-legend {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(6px);
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  font-size: 0.72rem;
+  max-width: 220px;
+  line-height: 1.2;
+}
+
+.map-view-container .map-legend h4 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #0f172a;
+}
+
+.map-view-container .legend-section-title {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #64748b;
+  margin: 5px 0 2px;
+  letter-spacing: 0.4px;
+}
+
+.map-view-container .legend-entry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+  color: #334155;
+  font-weight: 500;
+}
+
+.map-view-container .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.map-view-container .dot-critical { background-color: #991b1b; }
+.map-view-container .dot-high { background-color: #dc2626; }
+.map-view-container .dot-moderate { background-color: #d97706; }
+.map-view-container .dot-low { background-color: #16a34a; }
+
+.map-view-container .legend-badge {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  flex-shrink: 0;
+  border: 1px solid #ffffff;
+}
+
+.map-view-container .legend-line {
+  display: inline-block;
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-right: 2px;
+}
+.map-view-container .line-blue { background-color: #2563eb; }
+.map-view-container .line-red { background-color: #dc2626; }
+.map-view-container .line-green { background-color: #16a34a; }
+
+/* Kannada voice guide button */
+.map-view-container .voice-guide-btn {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+  transition: all 0.2s ease;
+}
+.map-view-container .voice-guide-btn:hover { background: #1d4ed8; }
+.map-view-container .voice-guide-btn.voice-active {
+  background: #dc2626;
+  animation: pulse 1.2s infinite;
+}

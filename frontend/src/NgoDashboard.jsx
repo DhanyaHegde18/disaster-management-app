@@ -1,26 +1,21 @@
 import { useEffect, useState } from "react";
+import NgoMap from "./components/map/NgoMap";
+import ProfileMenu from "./components/ProfileMenu";
+import { apiFetch, initials } from "./api";
 
-function NgoDashboard() {
+function NgoDashboard({ user, onLogout }) {
   const [requests, setRequests] = useState([]);
   const [requestStatus, setRequestStatus] = useState("Loading...");
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Fetch real SOS requests from backend
+  // Fetch real SOS requests from backend (needs the NGO login token)
   const fetchSOS = async () => {
     try {
       setError("");
 
-      const response = await fetch(
-        "http://localhost:5000/api/sos?status=active"
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch SOS requests");
-      }
-
-      const data = await response.json();
+      const data = await apiFetch("/api/sos?status=active");
 
       setRequests(data);
 
@@ -31,7 +26,11 @@ function NgoDashboard() {
       }
     } catch (err) {
       console.error("SOS fetch error:", err);
-      setError("Unable to load emergency requests.");
+      setError(
+        err.status === 401
+          ? "Your login has expired. Please log out and log in again."
+          : "Unable to load emergency requests."
+      );
     } finally {
       setLoading(false);
     }
@@ -46,7 +45,8 @@ function NgoDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // Accept the first/latest SOS
+  // Accept the first/latest SOS. The backend assigns it to this NGO
+  // and marks it In Progress, so two NGOs can't take the same request.
   const handleAccept = async () => {
     if (!requests.length || actionLoading) return;
 
@@ -56,24 +56,7 @@ function NgoDashboard() {
       setActionLoading(true);
       setError("");
 
-      const response = await fetch(
-        `http://localhost:5000/api/sos/${sos._id}/status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            status: "In Progress",
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to accept request");
-      }
+      await apiFetch(`/api/sos/${sos._id}/assign`, { method: "PATCH" });
 
       setRequestStatus("In Progress");
 
@@ -81,7 +64,11 @@ function NgoDashboard() {
       await fetchSOS();
     } catch (err) {
       console.error("Accept request error:", err);
-      setError("Unable to accept this emergency request.");
+      setError(
+        err.status === 409
+          ? "Another NGO has already accepted this request."
+          : err.message || "Unable to accept this emergency request."
+      );
     } finally {
       setActionLoading(false);
     }
@@ -135,16 +122,15 @@ function NgoDashboard() {
           </div>
         </div>
 
-        <div className="ngo-profile">
-          <div className="ngo-avatar">NG</div>
-
-          <div>
-            <strong>Responder</strong>
-            <small>NGO Account</small>
-          </div>
-
-          <span>⌄</span>
-        </div>
+        <ProfileMenu
+          className="ngo-profile"
+          avatarClassName="ngo-avatar"
+          initials={initials(user?.name || "NGO")}
+          name={user?.name || "Responder"}
+          subtitle="NGO Account"
+          phone={user?.phone}
+          onLogout={onLogout}
+        />
 
       </header>
 
@@ -412,7 +398,15 @@ function NgoDashboard() {
               {/* ACTIONS */}
               <div className="request-actions">
 
-                <button className="view-location">
+                <button
+                  className="view-location"
+                  onClick={() => {
+                    const { lat, lng } = currentRequest.location || {};
+                    if (lat && lng) {
+                      window.open(`https://www.google.com/maps?q=${lat},${lng}`, "_blank");
+                    }
+                  }}
+                >
                   📍 View Location
                 </button>
 
@@ -514,37 +508,8 @@ function NgoDashboard() {
           </div>
 
 
-          <div className="ngo-map-placeholder">
-
-            <div className="map-road road-one"></div>
-
-            <div className="map-road road-two"></div>
-
-
-            <div className="map-marker marker-you">
-              <span>NGO</span>
-            </div>
-
-
-            <div className="map-marker marker-alert">
-              <span>!</span>
-            </div>
-
-
-            <div className="map-marker marker-shelter">
-              <span>🏠</span>
-            </div>
-
-
-            <div className="map-label label-alert">
-              Emergency
-            </div>
-
-
-            <div className="map-label label-shelter">
-              Safe Shelter
-            </div>
-
+          <div className="embedded-map">
+            <NgoMap />
           </div>
 
         </section>

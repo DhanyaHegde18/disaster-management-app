@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import Login from "./Login";
+import ProfileMenu from "./components/ProfileMenu";
+import { clearSession, loadSession, saveSession } from "./api";
 import VillagerDashboard from "./VillagerDashboard";
 import NgoDashboard from "./NgoDashboard";
+import GramPanchayatMap from "./components/map/GramPanchayatMap";
 import "./App.css";
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [role, setRole] = useState(null);
+  // Logged-in session: { role, token, user }. Kept in localStorage so a refresh stays logged in.
+  const [session, setSession] = useState(() => loadSession());
+  const loggedIn = Boolean(session);
+  const role = session?.role || null;
 
   // =========================================================
   // LIVE BACKEND DATA
@@ -17,11 +22,11 @@ function App() {
   const [shelters, setShelters] = useState([]);
 
   const [sosLoading, setSosLoading] = useState(true);
-  const [riskLoading, setRiskLoading] = useState(true);
+  const [, setRiskLoading] = useState(true);
   const [shelterLoading, setShelterLoading] = useState(true);
 
   const [sosError, setSosError] = useState("");
-  const [riskError, setRiskError] = useState("");
+  const [, setRiskError] = useState("");
   const [shelterError, setShelterError] = useState("");
 
   // =========================================================
@@ -46,9 +51,14 @@ function App() {
   // LOGIN
   // =========================================================
 
-  const handleLogin = (selectedRole) => {
-    setRole(selectedRole);
-    setLoggedIn(true);
+  const handleLogin = (newSession) => {
+    saveSession(newSession);
+    setSession(newSession);
+  };
+
+  const handleLogout = () => {
+    clearSession();
+    setSession(null);
   };
 
   // =========================================================
@@ -396,7 +406,7 @@ function App() {
   // =========================================================
 
   if (role === "villager") {
-    return <VillagerDashboard />;
+    return <VillagerDashboard user={session.user} onLogout={handleLogout} />;
   }
 
   // =========================================================
@@ -404,7 +414,7 @@ function App() {
   // =========================================================
 
   if (role === "ngo") {
-    return <NgoDashboard />;
+    return <NgoDashboard user={session.user} onLogout={handleLogout} />;
   }
 
   // =========================================================
@@ -568,20 +578,14 @@ function App() {
               <span>{alerts.length}</span>
             </button>
 
-            <div className="profile">
-
-              <div className="avatar">
-                OC
-              </div>
-
-              <div>
-                <strong>Control Officer</strong>
-                <small>Administrator</small>
-              </div>
-
-              <span>⌄</span>
-
-            </div>
+            <ProfileMenu
+              className="profile"
+              avatarClassName="avatar"
+              initials="OC"
+              name="Control Officer"
+              subtitle="Administrator"
+              onLogout={handleLogout}
+            />
 
           </div>
 
@@ -779,105 +783,8 @@ function App() {
             </div>
 
 
-            <div className="map">
-
-              <div className="map-grid"></div>
-
-              <div className="map-road road-one"></div>
-
-              <div className="map-road road-two"></div>
-
-
-              {riskLoading && (
-
-                <div className="map-center">
-
-                  <span>●</span>
-
-                  LOADING RISK DATA...
-
-                </div>
-
-              )}
-
-
-              {!riskLoading &&
-                !riskError &&
-                riskZones.slice(0, 4).map(
-                  (zone, index) => {
-
-                    const riskClass =
-                      zone.riskLevel?.toLowerCase() ||
-                      "low";
-
-                    const labels = [
-                      "label-one",
-                      "label-two",
-                      "label-three",
-                      "label-four",
-                    ];
-
-                    return (
-
-                      <div
-                        className={`map-label ${
-                          labels[index]
-                        }`}
-                        key={zone._id || index}
-                      >
-
-                        <span
-                          className={`marker ${riskClass}`}
-                        ></span>
-
-                        {zone.village}
-
-                      </div>
-
-                    );
-                  }
-                )}
-
-
-              {!riskLoading &&
-                !riskError &&
-                riskZones.length > 0 && (
-
-                  <div className="map-center">
-
-                    <span>●</span>
-
-                    LIVE RISK MAP
-
-                  </div>
-
-                )}
-
-
-              <div className="map-legend">
-
-                <div>
-                  <span className="legend-dot critical"></span>
-                  Critical
-                </div>
-
-                <div>
-                  <span className="legend-dot high"></span>
-                  High
-                </div>
-
-                <div>
-                  <span className="legend-dot medium"></span>
-                  Medium
-                </div>
-
-                <div>
-                  <span className="legend-dot low"></span>
-                  Low
-                </div>
-
-              </div>
-
+            <div className="embedded-map">
+              <GramPanchayatMap />
             </div>
 
           </div>

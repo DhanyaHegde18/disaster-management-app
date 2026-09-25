@@ -1,50 +1,111 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import UserMap from "./components/map/UserMap";
+import ProfileMenu from "./components/ProfileMenu";
+import SOSModal from "./components/SOSModal";
+import { apiFetch, getToken, initials } from "./api";
+import { getPendingCount, startAutoSync } from "./utils/offlineSOS";
 
-function VillagerDashboard() {
-  const [sosSent, setSosSent] = useState(false);
-  const [sosLoading, setSosLoading] = useState(false);
-  const [sosError, setSosError] = useState("");
+// Average road speed used for the evacuation time estimate (ghat roads, rain)
+const ROAD_SPEED_KMPH = 30;
 
-  // SEND SOS TO BACKEND
-  const handleSOS = async () => {
-    if (sosLoading || sosSent) return;
+function VillagerDashboard({ user, onLogout }) {
+  const [showSOS, setShowSOS] = useState(false);
+  const [sosNotice, setSosNotice] = useState("");      // message after sending
+  const [myRequests, setMyRequests] = useState([]);    // this villager's SOS from the backend
+  const [pendingOffline, setPendingOffline] = useState(0);
+  const [routeInfo, setRouteInfo] = useState(null);    // { shelter, userPos, distanceKm } from the map
 
-    setSosLoading(true);
-    setSosError("");
+  const evacuationRef = useRef(null);
+
+  // This villager's SOS requests, to show whether help is coming
+  const fetchMyRequests = useCallback(async () => {
+    try {
+      const count = await getPendingCount();
+      setPendingOffline(count);
+    } catch {
+      // IndexedDB unavailable (e.g. private window): nothing to show
+    }
+
+    if (!getToken()) return;
 
     try {
-      const response = await fetch("http://localhost:5000/api/sos", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          location: {
-            lat: 13.3409,
-            lng: 74.7421,
-          },
-          village: "Udupi",
-          type: "Flood",
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to send SOS");
-      }
-
-      console.log("SOS successfully sent:", data);
-      setSosSent(true);
-    } catch (error) {
-      console.error("SOS error:", error);
-      setSosError(
-        "Unable to send SOS right now. Please try again."
-      );
-    } finally {
-      setSosLoading(false);
+      const data = await apiFetch("/api/sos/mine");
+      setMyRequests(data);
+    } catch (err) {
+      console.warn("Could not load your SOS status:", err.message);
     }
+  }, []);
+
+  useEffect(() => {
+    const stopAutoSync = startAutoSync();   // resend any SOS saved while offline
+    const first = setTimeout(fetchMyRequests, 0);
+    const interval = setInterval(fetchMyRequests, 10000);
+
+    return () => {
+      stopAutoSync();
+      clearTimeout(first);
+      clearInterval(interval);
+    };
+  }, [fetchMyRequests]);
+
+  const handleSOSSent = (result) => {
+    setShowSOS(false);
+    setSosNotice(
+      result === "sent"
+        ? "Your SOS has reached the control room. Stay where you are if it is safe."
+        : "No connection right now. Your SOS is saved on this phone and will be sent automatically."
+    );
+    fetchMyRequests();
   };
+
+  // Latest request that isn't finished yet
+  const activeRequest = myRequests.find((sos) => sos.status !== "Resolved");
+  const hasActiveSOS = Boolean(activeRequest) || pendingOffline > 0;
+
+  const scrollToMap = () => {
+    evacuationRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  // Opens Google Maps with directions from the villager's position to the shelter
+  const startNavigation = () => {
+    if (!routeInfo) return;
+    const { shelter, userPos } = routeInfo;
+    const url =
+      "https://www.google.com/maps/dir/?api=1" +
+      `&origin=${userPos[0]},${userPos[1]}` +
+      `&destination=${shelter.lat},${shelter.lng}` +
+      "&travelmode=driving";
+    window.open(url, "_blank", "noopener");
+  };
+
+  const distanceText = routeInfo ? `${routeInfo.distanceKm.toFixed(1)} km` : "Calculating...";
+  const timeText = routeInfo
+    ? `${Math.max(1, Math.round((routeInfo.distanceKm / ROAD_SPEED_KMPH) * 60))} min`
+    : "Calculating...";
+
+  // Text for the "Emergency request status" section
+  let statusTitle = "No active emergency request";
+  let statusText = "If you are in danger, use the SOS button above to request help.";
+  let statusBadge = "Standby";
+
+  if (activeRequest?.status === "In Progress") {
+    const ngo = activeRequest.assignedTo;
+    statusTitle = "Help is on the way";
+    statusText = ngo
+      ? `${ngo.name} has accepted your request${ngo.phone ? ` · Contact: ${ngo.phone}` : ""}. Stay in a safe location.`
+      : "A responder has accepted your request. Stay in a safe location.";
+    statusBadge = "Responder assigned";
+  } else if (activeRequest?.status === "Pending") {
+    statusTitle = "Your SOS has been received";
+    statusText = "Waiting for the nearest responder to accept. Stay in a safe location.";
+    statusBadge = "Waiting for responder";
+  } else if (pendingOffline > 0) {
+    statusTitle = "SOS saved on this phone";
+    statusText = "There is no connection to the server yet. It will be sent automatically.";
+    statusBadge = "Waiting for network";
+  }
+
+  const locationText = [user?.village, user?.district].filter(Boolean).join(", ") || "Karnataka";
 
   return (
     <div className="villager-page">
@@ -64,18 +125,19 @@ function VillagerDashboard() {
           <span>●</span>
           <div>
             <small>YOUR LOCATION</small>
-            <strong>Udupi, Karnataka</strong>
+            <strong>{locationText}</strong>
           </div>
         </div>
 
-        <div className="villager-profile">
-          <div className="villager-avatar">VB</div>
-          <div>
-            <strong>Villager</strong>
-            <small>My Account</small>
-          </div>
-          <span>⌄</span>
-        </div>
+        <ProfileMenu
+          className="villager-profile"
+          avatarClassName="villager-avatar"
+          initials={initials(user?.name || "Villager")}
+          name={user?.name || "Villager"}
+          subtitle="My Account"
+          phone={user?.phone}
+          onLogout={onLogout}
+        />
 
       </header>
 
@@ -178,36 +240,19 @@ function VillagerDashboard() {
             <div className="sos-action">
 
               <button
-                className={`big-sos ${sosSent ? "sos-sent" : ""}`}
-                onClick={handleSOS}
-                disabled={sosLoading || sosSent}
+                className={`big-sos ${hasActiveSOS ? "sos-sent" : ""}`}
+                onClick={() => setShowSOS(true)}
               >
-                <span>
-                  {sosSent ? "✓" : sosLoading ? "⏳" : "🆘"}
-                </span>
+                <span>{hasActiveSOS ? "✓" : "🆘"}</span>
 
-                <strong>
-                  {sosSent
-                    ? "SOS SENT"
-                    : sosLoading
-                    ? "SENDING..."
-                    : "SEND SOS"}
-                </strong>
+                <strong>{hasActiveSOS ? "SOS SENT" : "SEND SOS"}</strong>
 
                 <small>
-                  {sosSent
-                    ? "Help request is being processed"
-                    : sosLoading
-                    ? "Connecting to emergency services..."
+                  {hasActiveSOS
+                    ? "Tap to send another request"
                     : "Tap in an emergency"}
                 </small>
               </button>
-
-              {sosError && (
-                <p className="sos-error">
-                  {sosError}
-                </p>
-              )}
 
             </div>
 
@@ -229,14 +274,12 @@ function VillagerDashboard() {
               </div>
             </div>
 
-            {sosSent && (
+            {sosNotice && (
               <div className="sos-confirmation">
                 <span>✓</span>
                 <div>
-                  <strong>Emergency request received</strong>
-                  <p>
-                    A nearby responder will be notified.
-                  </p>
+                  <strong>Emergency request saved</strong>
+                  <p>{sosNotice}</p>
                 </div>
               </div>
             )}
@@ -254,7 +297,7 @@ function VillagerDashboard() {
                 <p>Available evacuation centres</p>
               </div>
 
-              <button className="small-link">
+              <button className="small-link" onClick={scrollToMap}>
                 View map →
               </button>
 
@@ -317,7 +360,7 @@ function VillagerDashboard() {
             </div>
 
 
-            <button className="route-button">
+            <button className="route-button" onClick={scrollToMap}>
               🧭 Find safest shelter →
             </button>
 
@@ -327,7 +370,7 @@ function VillagerDashboard() {
 
 
         {/* EVACUATION */}
-        <section className="villager-panel evacuation-panel">
+        <section className="villager-panel evacuation-panel" ref={evacuationRef}>
 
           <div className="villager-panel-heading">
 
@@ -342,25 +385,11 @@ function VillagerDashboard() {
 
           </div>
 
-          <div className="route-preview">
+          <div className="embedded-map">
+            <UserMap onRouteInfo={setRouteInfo} />
+          </div>
 
-            <div className="route-map">
-
-              <div className="route-road"></div>
-
-              <div className="route-point start-point">
-                <span>●</span>
-                You
-              </div>
-
-              <div className="route-point shelter-point">
-                <span>⌂</span>
-                Shelter
-              </div>
-
-              <div className="route-line"></div>
-
-            </div>
+          <div className="route-preview route-preview-single">
 
 
             <div className="route-details">
@@ -369,7 +398,7 @@ function VillagerDashboard() {
                 <span>📍</span>
                 <p>
                   <small>DESTINATION</small>
-                  <strong>Government PU College</strong>
+                  <strong>{routeInfo?.shelter.name || "Nearest shelter"}</strong>
                 </p>
               </div>
 
@@ -377,19 +406,23 @@ function VillagerDashboard() {
                 <span>↗</span>
                 <p>
                   <small>DISTANCE</small>
-                  <strong>1.2 km</strong>
+                  <strong>{distanceText}</strong>
                 </p>
               </div>
 
               <div>
                 <span>⏱</span>
                 <p>
-                  <small>ESTIMATED TIME</small>
-                  <strong>8 min</strong>
+                  <small>ESTIMATED TIME (BY ROAD)</small>
+                  <strong>{timeText}</strong>
                 </p>
               </div>
 
-              <button className="navigate-button">
+              <button
+                className="navigate-button"
+                onClick={startNavigation}
+                disabled={!routeInfo}
+              >
                 Start Navigation →
               </button>
 
@@ -406,22 +439,14 @@ function VillagerDashboard() {
           <div>
             <p className="card-label">EMERGENCY REQUEST STATUS</p>
 
-            <h3>
-              {sosSent
-                ? "Your SOS is being processed"
-                : "No active emergency request"}
-            </h3>
+            <h3>{statusTitle}</h3>
 
-            <p>
-              {sosSent
-                ? "A responder has been notified. Please stay in a safe location."
-                : "If you are in danger, use the SOS button above to request help."}
-            </p>
+            <p>{statusText}</p>
           </div>
 
-          <div className={`status-indicator ${sosSent ? "active" : ""}`}>
+          <div className={`status-indicator ${hasActiveSOS ? "active" : ""}`}>
             <span></span>
-            {sosSent ? "Responder notified" : "Standby"}
+            {statusBadge}
           </div>
 
         </section>
@@ -443,6 +468,14 @@ function VillagerDashboard() {
         </footer>
 
       </main>
+
+      {showSOS && (
+        <SOSModal
+          user={user}
+          onClose={() => setShowSOS(false)}
+          onSent={handleSOSSent}
+        />
+      )}
 
     </div>
   );

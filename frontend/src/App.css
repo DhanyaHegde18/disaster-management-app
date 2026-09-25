@@ -670,7 +670,7 @@ nav {
   color: #d9534f;
 }
 
-.map-legend {
+.map > .map-legend {
   position: absolute;
   left: 12px;
   bottom: 12px;
@@ -683,7 +683,7 @@ nav {
   color: #697671;
 }
 
-.map-legend div {
+.map > .map-legend div {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -3671,4 +3671,343 @@ nav {
   color: #b91c1c;
   font-size: 14px;
   font-weight: 600;
+}
+/* Villager evacuation panel: route details sit below the live map */
+.route-preview-single {
+  grid-template-columns: 1fr;
+  margin-top: 18px;
+}
+
+/* =========================
+   PROFILE MENU (all dashboards)
+========================= */
+
+.profile-menu {
+  position: relative;
+}
+
+.profile-menu-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.profile-menu-trigger > span {
+  margin-left: 5px;
+  opacity: 0.7;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 2000;
+  min-width: 190px;
+  padding: 8px;
+  background: white;
+  border: 1px solid #e1e6e8;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(9, 36, 43, 0.18);
+  text-align: left;
+}
+
+.profile-menu .profile-dropdown-info {
+  padding: 6px 8px 10px;
+  border-bottom: 1px solid #eef1f2;
+}
+
+.profile-menu .profile-dropdown-info strong {
+  display: block;
+  color: #17212b;
+  font-size: 12px;
+}
+
+.profile-menu .profile-dropdown-info small {
+  display: block;
+  margin-top: 3px;
+  color: #7e8c91;
+  font-size: 11px;
+}
+
+.profile-logout {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  border: 0;
+  border-radius: 7px;
+  background: #fff1ec;
+  color: #c2410c;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.profile-logout:hover {
+  background: #ffe2d6;
+}
+
+/* =========================
+   LOGIN: OTP STEP
+========================= */
+
+.login-error {
+  margin: 12px 0 0;
+  padding: 9px 11px;
+  border-radius: 7px;
+  background: #fff1f0;
+  color: #c0392b;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
+.otp-demo-box {
+  margin-top: 22px;
+  padding: 12px;
+  border: 1px dashed #f0b39f;
+  border-radius: 8px;
+  background: #fff7f3;
+  text-align: center;
+}
+
+.otp-demo-box small {
+  display: block;
+  color: #b4532f;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+}
+
+.otp-demo-box strong {
+  display: block;
+  margin-top: 4px;
+  color: #17212b;
+  font-size: 24px;
+  letter-spacing: 6px;
+}
+
+.register-fields {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #eef1f2;
+}
+
+.register-title {
+  margin: 0;
+  color: #43545a;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.register-fields .input-section {
+  margin-top: 12px;
+}
+
+.input-wrapper select {
+  flex: 1;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  padding: 0 12px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 11px;
+  color: #233238;
+}
+
+.otp-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.otp-links button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #d45b36;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.otp-links button:disabled {
+  opacity: 0.5;
+}
+
+/* =========================
+   SOS MODAL
+========================= */
+
+.sos-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(9, 25, 31, 0.55);
+}
+
+.sos-modal {
+  width: 100%;
+  max-width: 440px;
+  padding: 22px;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: left;
+}
+
+.sos-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.sos-modal-label {
+  margin: 0;
+  color: #e4572e;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+}
+
+.sos-modal-header h3 {
+  margin: 4px 0 0;
+  color: #17212b;
+  font-size: 18px;
+}
+
+.sos-modal-close {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 8px;
+  background: #f1f4f5;
+  color: #43545a;
+}
+
+.sos-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.sos-type {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid #e5eaec;
+  border-radius: 10px;
+  background: white;
+  color: #17212b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sos-type span {
+  font-size: 18px;
+}
+
+.sos-type.selected {
+  border-color: #e4572e;
+  background: #fff4ef;
+}
+
+.sos-location {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  background: #f5f8f8;
+}
+
+.sos-location > div {
+  flex: 1;
+}
+
+.sos-location strong {
+  display: block;
+  color: #17212b;
+  font-size: 12px;
+}
+
+.sos-location small {
+  display: block;
+  margin-top: 2px;
+  color: #7e8c91;
+  font-size: 11px;
+}
+
+.sos-location button {
+  padding: 5px 10px;
+  border: 1px solid #d5dde0;
+  border-radius: 7px;
+  background: white;
+  color: #43545a;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.sos-location-missing {
+  background: #fff4ed;
+}
+
+.sos-modal-message {
+  margin: 12px 0 0;
+  color: #c0392b;
+  font-size: 12px;
+}
+
+.sos-modal-send {
+  width: 100%;
+  height: 50px;
+  margin-top: 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #e4312b;
+  color: white;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.sos-modal-send:hover {
+  background: #c9241f;
+}
+
+.sos-modal-send:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.sos-modal-note {
+  margin: 12px 0 0;
+  color: #7e8c91;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Start Navigation waits until the route is known */
+.navigate-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }
