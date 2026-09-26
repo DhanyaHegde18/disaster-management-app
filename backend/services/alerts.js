@@ -17,9 +17,13 @@ function buildAlertMessage({ village, district, riskLevel }) {
   return `[${color} ALERT] Flood/landslide risk is ${riskLevel.toUpperCase()} in ${place}. ${LEVEL_ACTIONS[riskLevel]}`;
 }
 
-// Sends SMS only if SMS_ENABLED=true in .env. Otherwise it's simulated.
-async function deliverSMS(phones, message) {
-  if (process.env.SMS_ENABLED !== 'true') {
+// Sends SMS only if the switch in .env is "true". Otherwise it's simulated.
+//   SMS_ENABLED=true      -> danger alerts go out by SMS
+//   OTP_SMS_ENABLED=true  -> login codes go out by SMS (otherwise shown on screen)
+// They are separate so alerts can be live while demo logins still work for
+// numbers a Twilio trial account can't text.
+async function deliverSMS(phones, message, switchName = 'SMS_ENABLED') {
+  if (process.env[switchName] !== 'true') {
     return { mode: 'simulated', sent: 0, failed: 0 };
   }
 

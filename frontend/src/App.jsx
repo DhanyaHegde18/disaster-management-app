@@ -315,14 +315,16 @@ function App() {
           }),
       });
 
+      const total = data.recipients?.length || 0;
+      const smsText =
+        data.sms?.mode === "live"
+          ? ` · SMS sent to ${data.sms.sent} of ${total} villager(s)${
+              data.sms.failed ? ` (${data.sms.failed} failed)` : ""
+            }`
+          : ` · ${total} villager(s) in this area · SMS: demo mode`;
+
       setAlertMessage(
-        `${data.message || `Emergency alert triggered for ${village || alertDistrict}`}${
-          ` · ${data.recipients?.length || 0} villager(s) notified`
-        }${
-          data.sms?.mode === "simulated"
-            ? " · SMS: demo mode"
-            : ""
-        }`
+        `${data.message || `Emergency alert triggered for ${village || alertDistrict}`}${smsText}`
       );
 
       // Refresh alerts immediately

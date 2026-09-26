@@ -49,7 +49,11 @@ app.post('/api/auth/request-otp', async (req, res) => {
       expiresAt: new Date(Date.now() + 5 * 60 * 1000)  // 5 minutes
     });
 
-    const sms = await deliverSMS([phone], `Your Disaster Alert login code is ${code}. It expires in 5 minutes.`);
+    const sms = await deliverSMS(
+      [phone],
+      `Your Disaster Alert login code is ${code}. It expires in 5 minutes.`,
+      'OTP_SMS_ENABLED'
+    );
     if (sms.mode === 'live' && sms.sent === 0) {
       return res.status(502).json({ error: 'Could not send the code. Please try again.' });
     }
