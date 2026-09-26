@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { DISTRICTS } from "./data/districts";
 import { apiFetch } from "./api";
 
 const ROLES = [
@@ -22,15 +23,6 @@ const ROLES = [
   },
 ];
 
-const DISTRICTS = [
-  "Dakshina Kannada",
-  "Udupi",
-  "Uttara Kannada",
-  "Shivamogga",
-  "Chikkamagaluru",
-  "Kodagu",
-  "Hassan",
-];
 
 const roleTitle = (id) => ROLES.find((role) => role.id === id)?.title;
 

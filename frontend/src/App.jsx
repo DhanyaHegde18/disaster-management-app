@@ -16,6 +16,10 @@ import VillagerDashboard from "./VillagerDashboard";
 import NgoDashboard from "./NgoDashboard";
 import GramPanchayatMap from "./components/map/GramPanchayatMap";
 import "./App.css";
+import { DISTRICTS } from "./data/districts";
+
+// Value of the "Other village" choice in the alert form
+const OTHER_VILLAGE = "__other__";
 
 function App() {
   // Logged-in session: { role, token, user }. Kept in localStorage so a refresh stays logged in.
@@ -65,8 +69,10 @@ function App() {
 
   const [showAlertModal, setShowAlertModal] = useState(false);
 
-  const [alertVillage, setAlertVillage] = useState("Udupi");
+  const [alertVillage, setAlertVillage] = useState("");   // "" = whole district
   const [alertDistrict, setAlertDistrict] = useState("Udupi");
+  const [otherVillage, setOtherVillage] = useState("");   // typed name when "Other village" is chosen
+  const [alertAreas, setAlertAreas] = useState({ districts: [], villages: {} });
   const [alertRiskLevel, setAlertRiskLevel] = useState("Severe");
 
   const [alertLoading, setAlertLoading] = useState(false);
@@ -244,33 +250,26 @@ function App() {
   // OPEN ALERT MODAL
   // =========================================================
 
-  const openAlertModal = () => {
+  const openAlertModal = async () => {
     setAlertMessage("");
     setAlertError("");
 
-    if (riskZones.length > 0) {
-      setAlertVillage(riskZones[0].village || "Udupi");
-      setAlertDistrict(riskZones[0].district || "Udupi");
-
-      if (riskZones[0].riskLevel) {
-        const normalizedRisk = String(riskZones[0].riskLevel);
-
-        const supportedRiskLevels = [
-          "Low",
-          "Moderate",
-          "High",
-          "Severe",
-        ];
-
-        setAlertRiskLevel(
-          supportedRiskLevels.includes(normalizedRisk)
-            ? normalizedRisk
-            : "Severe"
-        );
-      }
+    // A Gram Panchayat officer can only alert the district they registered with
+    if (session?.user?.district) {
+      setAlertDistrict(session.user.district);
     }
-
     setShowAlertModal(true);
+
+    // Districts + the villages that have registered villagers
+    try {
+      const data = await apiFetch("/api/alerts/areas");
+      setAlertAreas({
+        districts: Array.isArray(data.districts) ? data.districts : [],
+        villages: data.villages || {},
+      });
+    } catch (error) {
+      console.error("Alert areas fetch error:", error);
+    }
   };
 
   // =========================================================
@@ -290,10 +289,15 @@ function App() {
   // =========================================================
 
   const triggerEmergencyAlert = async () => {
-    if (!alertVillage || !alertDistrict || !alertRiskLevel) {
-      setAlertError(
-        "Please select a village, district and risk level."
-      );
+    const village =
+      alertVillage === OTHER_VILLAGE ? otherVillage.trim() : alertVillage;
+
+    if (!alertDistrict || !alertRiskLevel) {
+      setAlertError("Please select a district and risk level.");
+      return;
+    }
+    if (alertVillage === OTHER_VILLAGE && !village) {
+      setAlertError("Please type the village name.");
       return;
     }
 
@@ -305,14 +309,16 @@ function App() {
       const data = await apiFetch("/api/alerts/trigger", {
         method: "POST",
         body: JSON.stringify({
-            village: alertVillage,
+            village,
             district: alertDistrict,
             riskLevel: alertRiskLevel,
           }),
       });
 
       setAlertMessage(
-        `${data.message || `Emergency alert triggered for ${alertVillage}`}${
+        `${data.message || `Emergency alert triggered for ${village || alertDistrict}`}${
+          ` · ${data.recipients?.length || 0} villager(s) notified`
+        }${
           data.sms?.mode === "simulated"
             ? " · SMS: demo mode"
             : ""
@@ -523,7 +529,7 @@ function App() {
 
           <div>
             <small>GRAM PANCHAYAT</small>
-            <p>Coastal Karnataka</p>
+            <p>{session?.user?.district || "Coastal Karnataka"}</p>
           </div>
 
         </div>
@@ -1552,6 +1558,40 @@ function App() {
               </div>
 
 
+              {/* DISTRICT (fixed to the officer's own district) */}
+
+              <div className="form-group">
+
+                <label>
+                  District
+                </label>
+
+                {session?.user?.district ? (
+                  <div className="alert-district-locked">
+                    📍 {session.user.district}
+                  </div>
+                ) : (
+                  // Older accounts without a district can still pick one
+                  <select
+                    value={alertDistrict}
+                    onChange={(e) => {
+                      setAlertDistrict(e.target.value);
+                      setAlertVillage("");
+                      setOtherVillage("");
+                    }}
+                    disabled={alertLoading}
+                  >
+                    {DISTRICTS.map((district) => (
+                      <option key={district} value={district}>
+                        {district}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+              </div>
+
+
               {/* VILLAGE */}
 
               <div className="form-group">
@@ -1562,59 +1602,34 @@ function App() {
 
                 <select
                   value={alertVillage}
-                  onChange={(e) =>
-                    setAlertVillage(
-                      e.target.value
-                    )
-                  }
+                  onChange={(e) => setAlertVillage(e.target.value)}
                   disabled={alertLoading}
                 >
+                  <option value="">
+                    All villages in {alertDistrict}
+                  </option>
 
-                  {riskZones.length > 0 ? (
-
-                    riskZones.map((zone) => (
-
-                      <option
-                        key={zone._id}
-                        value={zone.village}
-                      >
-                        {zone.village}
-                      </option>
-
-                    ))
-
-                  ) : (
-
-                    <option value="Udupi">
-                      Udupi
+                  {(alertAreas.villages[alertDistrict] || []).map((village) => (
+                    <option key={village.name} value={village.name}>
+                      {village.name} ({village.villagers} registered)
                     </option>
+                  ))}
 
-                  )}
-
+                  <option value={OTHER_VILLAGE}>
+                    Other village (type name)
+                  </option>
                 </select>
 
-              </div>
-
-
-              {/* DISTRICT */}
-
-              <div className="form-group">
-
-                <label>
-                  District
-                </label>
-
-                <input
-                  type="text"
-                  value={alertDistrict}
-                  onChange={(e) =>
-                    setAlertDistrict(
-                      e.target.value
-                    )
-                  }
-                  disabled={alertLoading}
-                  placeholder="Enter district"
-                />
+                {alertVillage === OTHER_VILLAGE && (
+                  <input
+                    type="text"
+                    className="alert-other-village"
+                    value={otherVillage}
+                    onChange={(e) => setOtherVillage(e.target.value)}
+                    disabled={alertLoading}
+                    placeholder="Village name"
+                  />
+                )}
 
               </div>
 

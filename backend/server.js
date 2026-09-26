@@ -565,6 +565,48 @@ app.get('/api/ngos/:id', async (req, res) => {
 
 // ---------- ALERTS ----------
 
+// Districts and villages the Gram Panchayat can send an alert to.
+// Districts: all Karnataka districts. Villages: the ones villagers registered
+// with, so every village in the list has at least one person who gets the alert.
+// Reply: { districts: ["Bagalkote", ...], villages: { "Udupi": [{ name: "Brahmavar", villagers: 3 }] } }
+const districtList = require('./data/districtCoordinates');
+
+function canonicalDistrict(name) {
+  const clean = String(name || '').trim();
+  const lower = clean.toLowerCase();
+  const match = districtList.find(
+    (d) => d.name.toLowerCase() === lower || (d.aliases || []).some((a) => a.toLowerCase() === lower)
+  );
+  return match ? match.name : clean;
+}
+
+app.get('/api/alerts/areas', requireRole('ngo', 'control'), async (req, res) => {
+  try {
+    const villagers = await User.find({ role: 'villager' }).select('village district');
+
+    const villages = {};  // district -> { lowercase village -> { name, villagers } }
+    for (const v of villagers) {
+      if (!v.district || !v.village) continue;
+      const district = canonicalDistrict(v.district);
+      const village = v.village.trim();
+      const key = village.toLowerCase();
+      villages[district] = villages[district] || {};
+      villages[district][key] = villages[district][key] || { name: village, villagers: 0 };
+      villages[district][key].villagers++;
+    }
+
+    const result = {};
+    for (const [district, list] of Object.entries(villages)) {
+      result[district] = Object.values(list).sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    const districts = [...new Set([...districtList.map((d) => d.name), ...Object.keys(result)])].sort();
+    res.json({ districts, villages: result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Villagers who live in the alert's area.
 // A village-level alert reaches only that village; if no village is given
 // (or the village name is the district itself) it reaches the whole district.
@@ -584,7 +626,18 @@ async function findAlertRecipients({ village, district }) {
 // Trigger an alert
 // Body: { "village": "...", "district": "...", "riskLevel": "Severe", "phones": ["+91..."], "message": "(optional)" }
 app.post('/api/alerts/trigger', requireRole('ngo', 'control'), async (req, res) => {
-  const { village, district, riskLevel, message, phones } = req.body;
+  const { village, riskLevel, message, phones } = req.body;
+  let { district } = req.body;
+
+  // A Gram Panchayat officer can only send alerts to their own district
+  if (req.user.role === 'control') {
+    try {
+      const officer = await User.findById(req.user.id).select('district');
+      if (officer?.district) district = officer.district;
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
 
   if (!village && !district) {
     return res.status(400).json({ error: 'Please give a village or a district' });
