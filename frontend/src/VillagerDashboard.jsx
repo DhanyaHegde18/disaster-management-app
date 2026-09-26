@@ -3,6 +3,7 @@ import UserMap from "./components/map/UserMap";
 import ProfileMenu from "./components/ProfileMenu";
 import SOSModal from "./components/SOSModal";
 import FamilyStatusCard from "./components/FamilyStatusCard";
+import DangerAlert from "./components/DangerAlert";
 import { apiFetch, getToken, initials } from "./api";
 import { getPendingCount, startAutoSync } from "./utils/offlineSOS";
 
@@ -68,7 +69,7 @@ function VillagerDashboard({ user, onLogout }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Alerts from the Gram Panchayat for my district, refreshed every 30 seconds
+  // Alerts from the Gram Panchayat for my district, refreshed every 15 seconds
   useEffect(() => {
     const loadAlerts = async () => {
       try {
@@ -80,7 +81,7 @@ function VillagerDashboard({ user, onLogout }) {
       }
     };
     loadAlerts();
-    const interval = setInterval(loadAlerts, 30000);
+    const interval = setInterval(loadAlerts, 15000);
     return () => clearInterval(interval);
   }, [user?.district]);
 
@@ -242,6 +243,14 @@ function VillagerDashboard({ user, onLogout }) {
           </div>
         </section>
 
+
+        {/* "YOU ARE IN DANGER" pop-up + siren + phone notification */}
+        <DangerAlert
+          alerts={alerts}
+          user={user}
+          onFindShelter={scrollToMap}
+          onSendSOS={() => setShowSOS(true)}
+        />
 
         {/* LATEST ALERT FOR MY AREA (from the Gram Panchayat) */}
         {latestAlert ? (

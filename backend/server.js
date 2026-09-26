@@ -565,6 +565,22 @@ app.get('/api/ngos/:id', async (req, res) => {
 
 // ---------- ALERTS ----------
 
+// Villagers who live in the alert's area.
+// A village-level alert reaches only that village; if no village is given
+// (or the village name is the district itself) it reaches the whole district.
+async function findAlertRecipients({ village, district }) {
+  const filter = { role: 'villager' };
+  if (district) filter.district = district;
+
+  const districtWide = !village || (district && village.toLowerCase() === district.toLowerCase());
+  if (!districtWide) filter.village = village;
+
+  const villagers = await User.find(filter)
+    .collation({ locale: 'en', strength: 2 })   // "ujire" matches "Ujire"
+    .select('phone');
+  return villagers.map((v) => v.phone);
+}
+
 // Trigger an alert
 // Body: { "village": "...", "district": "...", "riskLevel": "Severe", "phones": ["+91..."], "message": "(optional)" }
 app.post('/api/alerts/trigger', requireRole('ngo', 'control'), async (req, res) => {
@@ -577,9 +593,12 @@ app.post('/api/alerts/trigger', requireRole('ngo', 'control'), async (req, res) 
     return res.status(400).json({ error: 'riskLevel must be one of: Low, Moderate, High, Severe' });
   }
 
-  const recipients = Array.isArray(phones) ? phones : [];
-
   try {
+    // If no phone list is given, send to every villager registered in that area
+    const recipients = Array.isArray(phones) && phones.length > 0
+      ? phones
+      : await findAlertRecipients({ village, district });
+
     const text = message || buildAlertMessage({ village, district, riskLevel });
     const sms = await deliverSMS(recipients, text);
 
